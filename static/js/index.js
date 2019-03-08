@@ -144,40 +144,65 @@ ac.addEventListener("onconfirm", function(e) {
 
 
 // 点击事件
-$("#search-button").click(function() {
-    RoutePlanning()
+$("#search-button").click(function( e ) {
+    let routeType=$("#search-button").attr('route-type');
+    if(routeType==='bike'){
+        $(".bike-tab").click();
+    }else if(routeType==='drive'){
+        $(".drive-tab").click()
+    }else if(routeType==='walk'){
+        $(".walk-tab").click()
+    }else{
+        $(".bus-tab").click()
+    }
+    // RutePlanning()
 });
 
 $(".bus-tab").click(function() {
-    let searchBtn=$("#route-searchbox-content");
-    searchBtn.removeClass("bus drive walk bike");
-    searchBtn.addClass("bus");
+    // let searchBtn=$("#route-searchbox-content");
+    // searchBtn.removeClass("bus drive walk bike");
+    // searchBtn.addClass("bus");
     $("#search-button").attr("route-type",'bus');
-        RoutePlanning()
-
+    //     RoutePlanning()
+    let transit = new BMap.TransitRoute(map, {
+    renderOptions: {map: map, panel: "route-data"}
+    });
+    transit.search("王府井", "西单");
 });
 
 $(".drive-tab").click(function() {
-    let searchBtn=$("#route-searchbox-content");
-    searchBtn.removeClass("bus drive walk bike");
-    searchBtn.addClass("drive");
+    // let searchBtn=$("#route-searchbox-content");
+    // searchBtn.removeClass("bus drive walk bike");
+    // searchBtn.addClass("drive");
     $("#search-button").attr("route-type",'drive')
-        RoutePlanning()
+    //     RoutePlanning()
+    let driving = new BMap.DrivingRoute(map, {
+    renderOptions: {
+        map   : map,
+        panel : "route-data",
+        autoViewport: true
+    }
+});
+driving.search("中关村", "天安门");
 });
 
 $(".walk-tab").click(function() {
-    let searchBtn=$("#route-searchbox-content");
-    searchBtn.removeClass("bus drive walk bike");
-    searchBtn.addClass("walk");
-    $("#search-button").attr("route-type",'walk')
-        RoutePlanning()
+    // let searchBtn=$("#route-searchbox-content");
+    // searchBtn.removeClass("bus drive walk bike");
+    // searchBtn.addClass("walk");
+    $("#search-button").attr("route-type",'walk');
+    //     RoutePlanning()
+    let walk = new BMap.WalkingRoute(map, {
+        renderOptions: {map: map,panel : "route-data",}
+    });
+    walk.search("王府井", "西单");
 });
 
 $(".bike-tab").click(function() {
     let searchBtn=$("#route-searchbox-content");
     searchBtn.removeClass("bus drive walk bike");
     searchBtn.addClass("bike");
-    $("#search-button").attr("route-type",'bike')
+    $("#search-button").attr("route-type",'bike');
         RoutePlanning()
 });
 
