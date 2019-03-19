@@ -10,6 +10,7 @@ map.addControl(new BMap.MapTypeControl({
     mapTypes: [BMAP_NORMAL_MAP, BMAP_HYBRID_MAP]
 }));
 myGeo = new BMap.Geocoder();
+
 // 自动定位
 let geolocation = new BMap.Geolocation();
 geolocation.getCurrentPosition(function(r) {
@@ -61,85 +62,85 @@ function menuAddStartAddr(e) {
     })
 }
 function menuAddEndAddr(e) {
-    let point = new BMap.Point(e.lng, e.lat);
-    let marker = new BMap.Marker(point); // 创建点
-    //检测标记点
-    let len = map.getOverlays().length;
-    for (let i = len; i > 0; i--) {
-        if (map.getOverlays()[i] && map.getOverlays()[i].z.title === 'end') {
-            map.removeOverlay(map.getOverlays()[i]);
-        }
-    }
-    map.addOverlay(marker, {
-        "title": "end",
-        "label": "结束点"
-    }); //增加点
-    let geoc = new BMap.Geocoder();
-    geoc.getLocation(point,
-    function(rs) {
-        ec.setInputValue(rs.address)
-    })
+    // let point = new BMap.Point(e.lng, e.lat);
+    // let marker = new BMap.Marker(point); // 创建点
+    // //检测标记点
+    // let len = map.getOverlays().length;
+    // for (let i = len; i > 0; i--) {
+    //     if (map.getOverlays()[i] && map.getOverlays()[i].z.title === 'end') {
+    //         map.removeOverlay(map.getOverlays()[i]);
+    //     }
+    // }
+    // map.addOverlay(marker, {
+    //     "title": "end",
+    //     "label": "结束点"
+    // }); //增加点
+    // let geoc = new BMap.Geocoder();
+    // geoc.getLocation(point,
+    // function(rs) {
+    //     ec.setInputValue(rs.address)
+    // })
 }
 
 let ac = new BMap.Autocomplete( //建立一个自动完成的对象
 {
-    "input": "start-addr",
+    "input": "tipa",
     "location": map
 });
 let ec = new BMap.Autocomplete( //建立一个自动完成的对象
 {
-    "input": "end-addr",
+    "input": "tipb",
     "location": map
 });
-//鼠标放在下拉列表上的事件
-// ac.addEventListener("onhighlight", function(e) {
-// 	let str = "";
-// 	let _value = e.fromitem.value;
-// 	let value = "";
-// 	if (e.fromitem.index > -1) {
-// 		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-// 	}
-// 	str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
-// 	value = "";
-// 	if (e.toitem.index > -1) {
-// 		_value = e.toitem.value;
-// 		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-// 	}
-// 	str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
-// 	G("searchResultPanel").innerHTML = str;
-// });
-// 结束鼠标放在下拉列表上的事件
-// let ec = new BMap.Autocomplete(    //建立一个自动完成的对象
-// 	{"input" : "end-addr"
-// 	,"location" : map
-// });
-// ec.addEventListener("onhighlight", function(e) {
-// 	let str = "";
-// 	let _value = e.fromitem.value;
-// 	let value = "";
-// 	if (e.fromitem.index > -1) {
-// 		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-// 	}
-// 	str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
-// 	value = "";
-// 	if (e.toitem.index > -1) {
-// 		_value = e.toitem.value;
-// 		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-// 	}
-// 	str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
-// 	G("searchResultPanel").innerHTML = str;
-// });
+// 鼠标放在下拉列表上的事件
+ac.addEventListener("onhighlight", function(e) {
+	let str = "";
+	let _value = e.fromitem.value;
+	let value = "";
+	if (e.fromitem.index > -1) {
+		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+	}
+	str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+	value = "";
+	if (e.toitem.index > -1) {
+		_value = e.toitem.value;
+		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+	}
+	str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+	G("searchResultPanel").innerHTML = str;
+});
+ec.addEventListener("onhighlight", function(e) {
+	let str = "";
+	let _value = e.fromitem.value;
+	let value = "";
+	if (e.fromitem.index > -1) {
+		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+	}
+	str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+	value = "";
+	if (e.toitem.index > -1) {
+		_value = e.toitem.value;
+		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+	}
+	str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+	G("searchResultPanel").innerHTML = str;
+});
 
 let myValue = "";
 ac.addEventListener("onconfirm", function(e) {
     //鼠标点击下拉列表后的事件
     let _value = e.item.value;
     myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
+    window.localStorage.setItem("form",_value.city);
     setPlace();
     myGeo.getPoint(myValue, function (res) {
-        $("#start-addr").attr("origin",res.lat+","+res.lng)
+        inputa.attr("lat",res.lat);
+        inputa.attr('lng',res.lng);
+        myGeo.getLocation(new BMap.Point(res.lng, res.lat),function (result) {
+            inputa.attr('value',result.address)
+        })
+        // $("#tipa").attr("origin",res.lat+","+res.lng)
     });
-
 });
 
 
@@ -159,43 +160,45 @@ $("#search-button").click(function( e ) {
 });
 
 $(".bus-tab").click(function() {
-    // let searchBtn=$("#route-searchbox-content");
-    // searchBtn.removeClass("bus drive walk bike");
-    // searchBtn.addClass("bus");
+    let searchBtn=$("#route-searchbox-content");
+    searchBtn.removeClass("bus drive walk bike");
+    searchBtn.addClass("bus");
     $("#search-button").attr("route-type",'bus');
-    //     RoutePlanning()
+        // RoutePlanning()
     let transit = new BMap.TransitRoute(map, {
-    renderOptions: {map: map, panel: "route-data"}
+    renderOptions: {map: map, panel: "panel"}
     });
-    transit.search("王府井", "西单");
+    let location=getlocation();
+    console.log(location);
+    transit.search(location.start, location.end);
 });
 
 $(".drive-tab").click(function() {
-    // let searchBtn=$("#route-searchbox-content");
-    // searchBtn.removeClass("bus drive walk bike");
-    // searchBtn.addClass("drive");
-    $("#search-button").attr("route-type",'drive')
+    let searchBtn=$("#route-searchbox-content");
+    searchBtn.removeClass("bus drive walk bike");
+    searchBtn.addClass("drive");
+    $("#search-button").attr("route-type",'drive');
     //     RoutePlanning()
-    let driving = new BMap.DrivingRoute(map, {
-    renderOptions: {
-        map   : map,
-        panel : "route-data",
-        autoViewport: true
-    }
-});
-driving.search("中关村", "天安门");
+
+    let driving = new BMap.DrivingRoute(map, {renderOptions: {map: map, panel: "panel"}});
+    let l=getlocation();
+    driving.search(l.start, l.end);
 });
 
 $(".walk-tab").click(function() {
-    // let searchBtn=$("#route-searchbox-content");
-    // searchBtn.removeClass("bus drive walk bike");
-    // searchBtn.addClass("walk");
+    let searchBtn=$("#route-searchbox-content");
+    searchBtn.removeClass("bus drive walk bike");
+    searchBtn.addClass("walk");
     $("#search-button").attr("route-type",'walk');
     //     RoutePlanning()
+    let location=getlocation();
+    renderOptions={map: map,panel : "panel",autoViewport:true};
     let walk = new BMap.WalkingRoute(map, {
-        renderOptions: {map: map,panel : "route-data",}
+        renderOptions: renderOptions
     });
-    walk.search("王府井", "西单");
+    if(location.start && location.end){
+        walk.search(location.start, location.end);
+    }
 });
 
 $(".bike-tab").click(function() {
@@ -203,12 +206,21 @@ $(".bike-tab").click(function() {
     searchBtn.removeClass("bus drive walk bike");
     searchBtn.addClass("bike");
     $("#search-button").attr("route-type",'bike');
-        RoutePlanning()
+    riding = new BMap.RidingRoute(map, {
+    renderOptions: {
+        map: map,
+        panel : "panel"}
+    });
+    let l=getpoint();
+    if(l.start && l.end){
+        riding.search(l.start, l.end);
+    }
 });
 
 
 
-function setPlace() {
+function setPlace()
+{
     map.clearOverlays(); //清除地图上所有覆盖物
     function myFun() {
         let pp = local.getResults().getPoi(0).point; //获取第一个智能搜索的结果
@@ -223,9 +235,15 @@ function setPlace() {
 ec.addEventListener("onconfirm",function(e) { //鼠标点击下拉列表后的事件
     let _value = e.item.value;
     myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
+    window.localStorage.setItem("go",_value.city);
     setPlace();
     myGeo.getPoint(myValue, function (res) {
-        $("#end-addr").attr("destination",res.lat+","+res.lng)
+        inputb.attr("lat",res.lat);
+        inputb.attr("lng",res.lng);
+        myGeo.getLocation(new BMap.Point(res.lng, res.lat),function (result) {
+            inputb.attr('value',result.address)
+        })
+        // $("#end-addr").attr("destination",res.lat+","+res.lng)
     });
 });
 
@@ -270,3 +288,103 @@ function RoutePlanning() {
         document.getElementById('cards-level1').innerHTML=res;
     }});
 }
+historya=$("#historya");
+historyb=$("#historyb");
+inputa=$("#tipa");
+inputb=$("#tipb");
+
+
+
+
+
+const ak='GzVtCw9asuvgprsG0i2Ip4xuC4RDogpq';
+
+function suggestiona(key) {
+    url="http://api.map.baidu.com/place/v2/suggestion?query="+key+"&region=北京&city_limit=false&output=json&ak="+ak+"&callback=showLocationa";
+    $.getScript(url)
+}
+
+function showLocationa(res) {
+    content="<ul>";
+    for(let i in res.result){
+            content+="<li style='width: 368px;'>" +
+                "<a><i>广12路</i><em>广州市</em></a>"+
+            "</li>"
+    }
+    content+="</ul>";
+    historya.html(content);
+}
+function gethistory() {
+    // 获取历史记录
+    url="/trip/historylocation/";
+    $.get(url,function (res) {
+        data=JSON.parse(res);
+        content="<ul>";
+        for(let i in data){
+            content+="<li style='width: 368px;'>" +
+                "<a><i>广12路</i><em>广州市</em></a>"+
+            "</li>"
+        }
+        content+="</ul>";
+        historya.html(content);
+        historyb.html(content)
+    })
+}
+gethistory();
+// suggestion();
+
+
+// 绑定输入框点击事件
+// inputa.click(function(e) {
+//     historya.css('display','block')
+// });
+// 内容变化
+// inputa.bind("input propertychange", function(e) {
+//     // 获取数据
+//     console.log(inputa.value);
+//     suggestiona(inputa.value)
+//
+//
+// });
+// inputa.blur(function () {
+//    historya.css('display','none')
+// });
+
+
+function getlocation() {
+    alat=inputa.attr('lat');
+    alng=inputa.attr('lng');
+    blat=inputb.attr('lat');
+    blng=inputb.attr('lng');
+    let start=myGeo.getLocation(new BMap.Point(alng, alat), function(result){
+        console.log(result.address);
+        return result.address;
+    });
+    let end=myGeo.getLocation(new BMap.Point(blng, blat), function(result){
+        return result.address;
+    });
+
+    return {"start":inputa.attr('value'),"end":inputb.attr('value')}
+}
+function getpoint() {
+    alat=inputa.attr('lat');
+    alng=inputa.attr('lng');
+    blat=inputb.attr('lat');
+    blng=inputb.attr('lng');
+    let start=new BMap.Point(alng,alat);
+    let end = new BMap.Point(blng,blat);
+    return {"start":start,"end":end}
+}
+
+
+
+$("#gotrain").click(function (e) {
+    let go = window.localStorage.getItem('go');
+    let form =window.localStorage.getItem('form');
+    if(!go||!form){
+        alert("请选择出发地和目的地")
+    }else{
+        let url ="/trip/train/?start="+go+"&end="+form;
+        window.open(url)
+    }
+});

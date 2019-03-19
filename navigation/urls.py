@@ -19,6 +19,9 @@ from navigation import views
 urlpatterns = [
     path('',views.index ),
     path("get_options/",views.get_options),
-    path("transit/", views.transit)
+    path("transit/", views.transit),
+    path("gd/", views.gd),
+    path('historylocation/',views.historylocation),
+    path('train/',views.getTrainList)
 
 ]

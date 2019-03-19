@@ -1,0 +1,491 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>地图显示</title>
+    <style>
+        html,
+        body,
+        #container {
+          width: 100%;
+          height: 100%;
+        }
+         .panel {
+            position: fixed;
+            top: 10px;
+             right: 1rem;
+             width: 300px;
+             z-index: 999;
+            }
+        .dirbox {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 360px;
+            background: #3d93fd;
+            border-radius: 2px 3px 3px 2px;
+            box-shadow: 0 2px 2px rgba(0,0,0,.15);
+            display: none;
+        }
+        #indexbox {
+    position: relative;
+    box-sizing: border-box;
+}
+        #planForm {
+    position: relative;
+    padding: 14px;
+    padding-bottom: 68px;
+    background: #3d93fd;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+        .plan_wrap {
+    position: relative;
+    left: 0;
+    top: 0;
+}
+        ul.tabs.dir_tab {
+    width: 200px;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    height: 30px;
+    margin: 0 auto;
+    white-space: nowrap;
+}
+        .tabs {
+    position: relative;
+    height: 28px;
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    margin: 0 auto;
+    width: 100%;
+    white-space: nowrap;
+    background-color: #fff;
+        }
+        ol, ul {
+               list-style: none;
+        }
+        .tab-item{
+            display: inline;
+            padding: 5px;
+        }
+        .bus-tab > i {
+            display: inline-block;
+            position: relative;
+            top: 2px;
+            width: 13px;
+            height: 15px;
+            background-image: url(https://map.baidu.com//webmap1.bdimg.com/wolfman/static/common/images/new/route-icon_2c25ce2.png);
+            background-repeat: no-repeat;
+        }
+        .dir_submit {
+            display: inline-block;
+            float: right;
+            padding: 0 25px;
+            height: 32px;
+            line-height: 32px;
+            background-color: #559ffb;
+            border: none;
+            border-radius: 2px;
+            color: #fff;
+            font-size: 14px;
+            text-decoration: none;
+            box-shadow: 0 1px 1px 0 rgba(0,0,0,.21);
+            -webkit-box-shadow: 0 1px 1px 0 rgba(0,0,0,.21);
+            -moz-box-shadow: 0 1px 1px 0 rgba(0,0,0,.21);
+        }
+        .route-info .active{
+            background-color: #fff;
+        }
+        .tip{
+            padding-top: 10px;
+            background-color: #fff;
+            padding-bottom: 10px;
+
+        }
+        .tip .auto-item{
+            padding-left: 25px;
+        }
+        .historya{
+            display: none;
+            position: absolute;
+            top:84px;
+            left: 120.859px;
+            z-index: 1024;
+            background-color: #fefefe;
+            border: 1px solid #d1d1d1;
+            bottom: auto;
+            min-width: 175px;
+            visibility:visible;
+        }
+        .historyb{
+            display: none;
+            position: absolute;
+            top:129px;
+            left: 120.859px;
+            z-index: 1024;
+            background-color: #fefefe;
+            border: 1px solid #d1d1d1;
+            bottom: auto;
+            min-width: 175px;
+            visibility:visible;
+        }
+    </style>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="panel">
+    <div id="panel-bus"></div>
+    <div id="panel-walking"></div>
+    <div id="panel-bike"></div>
+    <div id="panel-driving">
+    </div>
+</div>
+<div id="container"></div>
+<div id="dirbox" class="dirbox" style="display: block; transform: translateY(0px);"><div id="indexbox" class="real-height-box">
+    <div class="content">
+        <div id="planForm" style="text-align: center" >
+            <div class="route-info" style="display: inline;margin: auto">
+                <div id="bus" class="tab-item active" onclick="bus()"><a>公交</a></div>
+                <div id="driving" class="tab-item" onclick="driving()"><a>驾车</a></div>
+                <div id="walking" class="tab-item" onclick="walking()"><a>步行</a></div>
+                <div id="bike" class="tab-item" onclick="bike()"><a>单车</a></div>
+            </div>
+            <div class="line-search">
+                <div class="line-search-form">
+                    <p class="line_serch_ipt line-search-from" style="margin-block-end: 0"  >
+                        <label>起</label>
+                        <input onBlur="clearhistory(0)" onclick="sethistory(this,0)"  id="tipinputa" type="text" class="dir_ipt" placeholder="请输入起点" value="" autocomplete="off">
+                        <span class="del-item" style="display: none;"></span>
+
+                    </p>
+                    <div class="passList" style="display: block;"></div>
+                    <div class="" onclick="exchange()" style="cursor: pointer">
+                        <i style="margin-right: 174px;color: #fff" class="fas fa-exchange-alt"></i>
+                    </div>
+                    <p class="line_serch_ipt line-search-to" style="margin-block-start: 0" >
+                        <label>终 </label><i class=""></i>
+                        <input onBlur="clearhistory(1)" onclick="sethistory(this,1)" id="tipinputb" type="text" class="dir_ipt"  placeholder="请输入终点" value="" autocomplete="off">
+                        <span class="del-item" style="display: none;"></span>
+                    </p>
+                    <p class="line-search-submit">
+{#                        <a href="javascript:void(0)" class="line-search-clear none">清除路线</a>#}
+                        <a id="go" onclick="routeGo(this)" class="dir_submit" route="bus">GO</a>
+                        <span class="fa-spin"></span>
+                    </p>
+                </div>
+                <a href="javascript:void(0)" class="line-search-right icon_add" id="via_add" style="display: block;"></a>
+            </div>
+        </div>
+
+
+        <div class="plan_wrap">
+            <div class="plan_wrap_item dirtips">
+                <div class="dirtips_item dirSug">
+                    <div class="autocomplete-suggestions planform-suggestion" style="position: absolute; display: none; width: 360px; max-height: 550px; z-index: 9999;">
+
+                    </div>
+                    <div class="autocomplete-suggestions planform-suggestion" style="position: absolute; display: none; width: 360px; max-height: 550px; z-index: 9999;">
+
+                    </div>
+                </div>
+                <div class="dirtips_item dirlocSug" style="display: none;">
+                    <a href="javascript:void(0)" id="locsug">我的位置</a> </div>
+            </div>
+            <div class="plan_wrap_item dirHistory" id="dirHistory" style="display: none;">
+                <h2> <i class="iconfont icon-history"></i>路线搜索记录 </h2>
+                <a class="dirhisclear" style="display: none" href="javascript:void(0)">清空历史记录</a>
+                <ul class="dir_history_list"> </ul>
+            </div>
+            <div class="plan_wrap_item choose-poi" id="choosePoi" style="display: none;"> <span class="choose_lbl">请选择正确的起点、途经点或终点</span>  <div id="fromPoiList" class="choose-poi-list"></div>  <div class="viaPoiList choose-poi-list" id="viaPoiList0"></div>  <div class="viaPoiList choose-poi-list" id="viaPoiList1"></div>  <div class="viaPoiList choose-poi-list" id="viaPoiList2"></div>  <div class="viaPoiList choose-poi-list" id="viaPoiList3"></div>  <div class="viaPoiList choose-poi-list" id="viaPoiList4"></div>  <div class="viaPoiList choose-poi-list" id="viaPoiList5"></div>  <div id="toPoiList" class="choose-poi-list"></div> </div>  <div class="plan_wrap_item plan_list" id="planList" style="display: none;"> </div> <div id="amap_panel_model"></div> </div> </div> </div>
+    <div id="tipa" class="tip"></div>
+</div>
+<div class="historya">
+    <div onclick="test()" class="auto-item" id="amap-sug0">南京1912街区<span class="auto-item-span">江苏省南京市玄武区</span></div>
+    <div class="auto-item" id="amap-sug1">南京1912街区<span class="auto-item-span">上海市虹口区</span></div>
+    <div class="auto-item" id="amap-sug2">南京1912街区<span class="auto-item-span">北京市朝阳区</span></div>
+    <div class="auto-item" id="amap-sug3">南京1912街区<span class="auto-item-span">云南省昆明市西山区</span></div>
+    <div class="auto-item" id="amap-sug4">南京1912街区<span class="auto-item-span">上海市浦东新区</span></div>
+    <div class="auto-item" id="amap-sug5">南京1912街区<span class="auto-item-span">广东省深圳市光明区</span></div>
+    <div class="auto-item" id="amap-sug6">南京1912街区<span class="auto-item-span">四川省成都市武侯区</span></div>
+    <div class="auto-item" id="amap-sug7">南京1912街区<span class="auto-item-span">安徽省合肥市蜀山区</span></div>
+    <div class="auto-item" id="amap-sug8">南京1912街区<span class="auto-item-span">四川省成都市新都区</span></div>
+    <div class="auto-item" id="amap-sug9">南京1912街区<span class="auto-item-span">广东省广州市荔湾区</span></div>
+</div>
+<div class="historyb">
+    <div onclick="test()" class="auto-item" id="amap-sug0">南京1912街区<span class="auto-item-span">江苏省南京市玄武区</span></div>
+    <div class="auto-item" id="amap-sug1">南京1912街区<span class="auto-item-span">上海市虹口区</span></div>
+    <div class="auto-item" id="amap-sug2">南京1912街区<span class="auto-item-span">北京市朝阳区</span></div>
+    <div class="auto-item" id="amap-sug3">南京1912街区<span class="auto-item-span">云南省昆明市西山区</span></div>
+    <div class="auto-item" id="amap-sug4">南京1912街区<span class="auto-item-span">上海市浦东新区</span></div>
+    <div class="auto-item" id="amap-sug5">南京1912街区<span class="auto-item-span">广东省深圳市光明区</span></div>
+    <div class="auto-item" id="amap-sug6">南京1912街区<span class="auto-item-span">四川省成都市武侯区</span></div>
+    <div class="auto-item" id="amap-sug7">南京1912街区<span class="auto-item-span">安徽省合肥市蜀山区</span></div>
+    <div class="auto-item" id="amap-sug8">南京1912街区<span class="auto-item-span">四川省成都市新都区</span></div>
+    <div class="auto-item" id="amap-sug9">南京1912街区<span class="auto-item-span">广东省广州市荔湾区</span></div
+</div>
+<!-- 加载地图JSAPI脚本 -->
+<script src="https://webapi.amap.com/maps?v=1.4.13&key=18999e74b2f733e2119b2889826612cd&plugin=AMap.Autocomplete,AMap.Transfer,AMap.Riding,AMap.Walking,AMap.Driving,AMap.MouseTool"></script>
+<script>
+    let map = new AMap.Map('container', {
+        resizeEnable: true, //是否监控地图容器尺寸变化
+        zoom:11, //初始化地图层级
+        center: [116.397428, 39.90923] //初始化地图中心点
+    });
+    //输入提示
+    let autoa = new AMap.Autocomplete({
+        input: "tipinputa"
+    });
+    let autob = new AMap.Autocomplete({
+        input: "tipinputb"
+    });
+
+
+    AMap.event.addListener(autoa, "select", selecta);//注册监听，当选中某条记录时会触发
+    AMap.event.addListener(autob, "select", selectb);
+
+    // 右键菜单
+    let menu = new ContextMenu(map);
+    function ContextMenu(map) {
+        let me = this;
+
+        //地图中添加鼠标工具MouseTool插件
+        this.mouseTool = new AMap.MouseTool(map);
+
+        this.contextMenuPositon = null;
+
+        let content = [];
+        content.push("<div class='info context_menu'>");
+        content.push("<p onclick='menu.adda()'>选择为起点</p>");
+        content.push("<p onclick='menu.addb(0)'>选择为终点</p>");
+        content.push("</div>");
+         //通过content自定义右键菜单内容
+        this.contextMenu = new AMap.ContextMenu({isCustom: true, content: content.join('')});
+        //地图绑定鼠标右击事件——弹出右键菜单
+        map.on('rightclick', function (e) {
+            me.contextMenu.open(map, e.lnglat);
+            me.contextMenuPositon = e.lnglat; //右键菜单位置
+        });
+        ContextMenu.prototype.adda = function () {
+        this.mouseTool.close();
+        console.log(this.contextMenuPositon);
+        toaddrname(this.contextMenuPositon.lng,this.contextMenuPositon.lat,0);
+        this.contextMenu.close();
+        };
+
+         ContextMenu.prototype.addb = function () {
+        this.mouseTool.close();
+        toaddrname(this.contextMenuPositon.lng,this.contextMenuPositon.lat,1);
+        this.contextMenu.close();
+        };
+    }
+    function selecta(a) {
+        let location=a.poi.location;
+        let tag=$("#tipinputa");
+        tag.attr('origin',location.lng+","+location.lat);
+        autoa.value=a.poi.district+a.poi.name
+    }
+    function selectb(a) {
+        let location=a.poi.location;
+        let tag=$("#tipinputb");
+        tag.attr('origin',location.lng+","+location.lat);
+        autob.value=a.poi.district+a.poi.name
+    }
+    function routeGo(e) {
+        let route=$(e).attr('route');
+        if(route==='bus'){
+            bus()
+        }else if(route==='driver'){
+            driving()
+        }else if(route === 'bike'){
+            bike()
+        }else{
+            walking()
+        }
+    }
+    function bus() {
+        handleActiveClass('bus');
+        let a=$("#tipinputa").attr('origin');
+        let b=$("#tipinputb").attr('origin');
+         let transOptions = {
+             map: map,
+             city: '北京市',
+             panel: 'panel-bus',
+             policy: AMap.TransferPolicy.LEAST_TIME
+         };
+         if(!a || !b){
+             alert("请选择地点")
+         }
+         let transfer = new AMap.Transfer(transOptions);
+         transfer.search(new AMap.LngLat(a.split(",")[0],a.split(",")[1]), new AMap.LngLat(b.split(",")[0],b.split(",")[1]), function(status, result) {
+             console.log(result)
+        // result即是对应的公交路线数据信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_TransferResult
+        })
+    }
+    function driving() {
+        // 驾车导航
+        handleActiveClass('driving');
+         let transfer = new AMap.Driving({
+             map: map,
+             panel: "panel-driving"
+         });
+         let origin=$("#tipinputa").attr('origin');
+         let des = $("#tipinputb").attr('origin');
+         if(!origin || !des){
+             return
+         }
+         transfer.search(new AMap.LngLat(origin.split(",")[0],origin.split(",")[1]), new AMap.LngLat(des.split(",")[0],des.split(",")[1]), function(status, result) {
+        // result即是对应的公交路线数据信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_TransferResult
+
+        })
+    }
+    function walking() {
+        //步行导航
+        handleActiveClass('walking');
+        let walking = new AMap.Walking({
+            map: map,
+            panel: "panel-walking"
+        });
+        let origin=$("#tipinputa").attr('origin');
+         let des = $("#tipinputb").attr('origin');
+         if(!origin || !des){
+             return
+         }
+        // 根据起终点坐标规划步行路线
+        walking.search([origin.split(",")[0],origin.split(",")[1]], [des.split(",")[0],des.split(",")[1]], function(status, result) {
+        // result即是对应的步行路线数据信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_WalkingResult
+        });
+    }
+    function bike() {
+        //骑行导航
+        handleActiveClass('bike');
+        let riding = new AMap.Riding({
+            map: map,
+            panel: "panel-bike"
+        });
+        let origin=$("#tipinputa").attr('origin');
+         let des = $("#tipinputb").attr('origin');
+         if(!origin || !des){
+             return
+         }
+        //根据起终点坐标规划骑行路线
+        riding.search([origin.split(",")[0],origin.split(",")[1]],[des.split(",")[0],des.split(",")[1]], function(status, result) {
+        // result即是对应的骑行路线数据信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_RidingResult
+        })
+    }
+    function handleActiveClass(name) {
+        $('#walking').removeClass("active");
+        $('#bike').removeClass("active");
+        $('#driving').removeClass("active");
+        $("#bus").removeClass("active");
+        let temp=$("#"+name);
+        temp.addClass("active");
+        $("#go").attr('route',name);
+
+        $("#panel-bike").empty();
+        $("#panel-bus").empty();
+        $("#panel-walking").empty();
+        $("#panel-driving").empty()
+    }
+    function toaddrname(lng,lat,flag) {
+        AMap.service(["AMap.PlaceSearch"], function() {
+        //构造地点查询类
+        let placeSearch = new AMap.PlaceSearch({
+            type: '',
+            pageSize: 5, // 单页显示结果条数
+            pageIndex: 1, // 页码
+            city: "", // 兴趣点城市
+            citylimit: false,  //是否强制限制在设置的城市内搜索
+            map: map, // 展现结果的地图实例
+            {#        panel: "panel", // 结果列表将在此容器中进行展示。#}
+            autoFitView: false // 是否自动调整地图视野使绘制的 Marker点都处于视口的可见范围
+        });
+        let cpoint = [lng, lat]; //中心点坐标
+        placeSearch.searchNearBy('', cpoint, 200, function(status, result) {
+            if(status==='complete'){
+                console.log(result);
+                if(flag===0){
+                    tag = $("#tipinputa");
+
+                }else{
+                    tag = $("#tipinputb")
+                }
+                tag.attr('value',result.poiList.pois[0].address);
+                tag.attr('origin',result.poiList.pois[0].location.lng+","+result.poiList.pois[0].location.lat)
+
+            }else{
+                alert("无法识别定位点")
+            }
+        });
+        });
+    }
+    function exchange() {
+        // 交换位置
+        let a=$("#tipinputa");
+        let b=$("#tipinputb");
+        valueA=autoa.input.value;
+        valueB=autob.input.value;
+        autoa.input.value=valueB;
+        autob.input.value=valueA;
+        originA=a.attr('origin');
+        originB=b.attr('origin');
+        a.attr('origin',originB);
+        b.attr('origin',originA);
+    }
+    function savelocation() {
+        // 记录地点
+
+    }
+    function searchtip(e,flag) {
+        AMap.plugin('AMap.Autocomplete', function(){
+            let autoOptions = {
+                city: '全国'
+            };
+            let autoComplete= new AMap.Autocomplete(autoOptions);
+            autoComplete.search(e.value, function(status, result) {
+            results = JSON.stringify(result);
+            localStorage.results = results;
+            // to html
+            content="";
+            for(let i in result){
+                content+="<div class='auto-item'>南京1912街区<span class='auto-item-span'>江苏省南京市玄武区</span></div>"
+            }
+            console.log(content);
+            contain=$("#tipa");
+            contain.innerHTML="";
+            contain.innerHTML="<div><h1>12312321</h1></div>"
+
+        })
+        })
+    }
+    function sethistory(e,flag) {
+        tag=$(e);
+        if(tag.value===undefined || tag.value.length===0){
+            if(flag===0){
+                $(".historya").css("display","block")
+            }else{
+                $(".historyb").css("display","block")
+            }
+        }
+    }
+    function clearhistory(flag) {
+        if(flag===0){
+            $(".historya").css('display','none')
+        }else{
+            $(".historyb").css('display','none')
+        }
+    }
+
+    $(".historya").click(function () {
+        console.log(this)
+    });
+    function test() {
+        console.log('test')
+    }
+</script>
+</body>
+</html>

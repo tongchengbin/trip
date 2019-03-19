@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style>
+        table, th , td  {
+          border: 1px solid grey;
+          border-collapse: collapse;
+          padding: 5px;
+        }
+        table tr:nth-child(odd) {
+          background-color: #f1f1f1;
+        }
+        table tr:nth-child(even) {
+          background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<table>
+    <tbody>
+    <td>车号</td>
+    <td>日期</td>
+    <td>出发地</td>
+    <td>目的地</td>
+    <td>出发时间</td>
+    <td>到达时间</td>
+    <td>历时</td>
+    <td>商务座</td>
+    <td>一等座</td>
+    <td>二等座</td>
+    <td>软卧</td>
+    <td>硬卧</td>
+    <td>状态</td>
+
+    {% for item in result %}
+    <tr>
+        <td>{{ item.car_no }}</td>
+        <td>{{ item.departure_date }}</td>
+        <td>{{ item.start }}</td>
+        <td>{{ item.end }}</td>
+        <td>{{ item.start_time }}</td>
+        <td>{{ item.end_time }}</td>
+        <td>{{ item.time }}</td>
+        <td>{{ item.swz }}</td>
+        <td>{{ item.ydz }}</td>
+        <td>{{ item.edz }}</td>
+        <td>{{ item.rw }}</td>
+        <td>{{ item.yw }}</td>
+        <td>{{ item.status }}</td>
+    </tr>
+    {% endfor%}
+    </tbody>
+
+</table>
+
+
+
+</body>
+</html>

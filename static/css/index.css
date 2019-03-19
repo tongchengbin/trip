@@ -10431,3 +10431,68 @@ my
     border-bottom: 1px solid #E4E6E7;
     overflow: hidden;
 }
+
+.tipinfo{
+    background-color: #fff;
+    position: absolute;
+    top: 139px;
+    left: 20px;
+    z-index: 1000;
+    width: 368px;
+}
+
+.tipinfo a{
+    display: block;
+    height: 35px;
+    line-height: 35px;
+    padding-right: 10px;
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tipinfo i{
+    padding-left: 39px;
+    font-style: normal;
+    color: #666;
+    position: relative;
+    z-index: 1;
+    padding-top: 1px;
+}
+.tipinfo ul{
+
+}
+.tipinfo li:hover{
+    cursor: pointer;
+    background-color: #EBEBEB;
+}
+
+.hidden{
+    display: none;
+}
+
+#historya{
+    display: none;
+}
+#historyb{
+    display: none;
+}
+
+
+#panel{
+    overflow: auto;
+    position: absolute;
+    z-index: 100;
+    top: 150px;
+    left: 20px;
+    width: 367px;
+    max-height: 537px;
+}
+
+.bt-info{
+    position: absolute;
+    left: 450px;
+    top: 20px;
+    overflow: hidden;
+    z-index: 100;
+}
