@@ -3,6 +3,7 @@ from django.http.response import JsonResponse
 from navigation.models import history
 import json
 import os
+import re
 from urllib.parse import quote
 from pprint import pprint
 from datetime import datetime
@@ -23,9 +24,11 @@ def get_options(request,*args,**kwargs):
 def transit(request,*args,**kwargs):
     tp=request.GET.get('type','walk')
     origin=request.GET.get('origin')
+    destination = request.GET.get('destination')
+    origin="30.489599,114.422979"
+    destination="30.513467,114.404654"
     if not tp or not origin:
-        return HttpResponse("")
-    destination=request.GET.get('destination')
+        return HttpResponse()
     drive="http://api.map.baidu.com/directionlite/v1/driving"
     bike="http://api.map.baidu.com/directionlite/v1/riding"
     walk="http://api.map.baidu.com/directionlite/v1/walking"
@@ -33,7 +36,7 @@ def transit(request,*args,**kwargs):
     params={
         "ak":"GRVPtshoVTO5plLfP8EwCmrehtlOmEmg",
         "origin":origin,
-        "destination":destination,
+        "destination":destination
     }
     if tp=="drive":
         url=drive
@@ -43,15 +46,13 @@ def transit(request,*args,**kwargs):
         url=walk
     else:
         url=bus
-    print(url)
-    data = requests.get(url,params=params).json()
+    response= requests.get(url,params=params)
+    data=response.json()
     if data['status']!=0:
-        return HttpResponse(data['message'])
-    routes=data['result']['routes'][0]
-    origin=data['result']['origin']  #秒
-    destination=data['result'] ['destination'] #米
-    stepsCount=len(routes['steps'])
-    return render(request,'transit.html',{"routes":routes,"origin":origin,"destination":destination,"stepsCount":stepsCount})
+        return JsonResponse(data)
+    print(data)
+    return JsonResponse(data)
+    # return render(request,'transit.html',{"data":data})
 
 def gd(request,*args,**kwargs):
     return render(request,"gd.html")
@@ -65,13 +66,8 @@ def historylocation(request,*args,**kwargs):
         results.append(i)
     return HttpResponse(json.dumps(results))
 
-
-def getlocation(request,*args,**kwargs):
-    pass
-
-
 def getTrainList(request,*args,**kwargs):
-    tripType=request.GET.get('type','train')
+
     start=request.GET.get("start","武汉")
     end=request.GET.get("end","北京")
     if start.endswith("市"):
@@ -85,42 +81,75 @@ def getTrainList(request,*args,**kwargs):
     end= stations.get(end)
     if not day:
         day=datetime.today().strftime("%Y-%m-%d")
-    if tripType=='train':
-        train_url = "https://kyfw.12306.cn/otn/leftTicket/query?leftTicketDTO.train_date={day}&leftTicketDTO.from_station={start}&leftTicketDTO.to_station={end}&purpose_codes=ADULT".format(day=day,start=start,end=end)
-        print(train_url)
-        res=requests.get(train_url)
-        if res.status_code==200:
-            data=res.json()['data']
-            citydata = data['map']
-            lis=data['result']
-            result=[]
-            for item in lis:
-                temp=item.split("|")
-                print(temp)
-                result.append({
-                    "car_no":temp[3],
-                    "start":citydata[temp[6]],
-                    "end":citydata[temp[7]],
-                    "start_time":temp[8],
-                    "end_time":temp[9],
-                    "time":temp[10],
-                    "departure_date":temp[13],
-                    "swz":temp[32],#商务座
-                    "ydz":temp[31],
-                    "edz":temp[30],#二等座
-                    "rw":temp[23],#软卧
-                    "yw":temp[19],#硬卧
-                    "status":temp[29] or "无",
-                })
-            return render(request,'train.html',{"result":result})
-    elif tripType=="fly":
-        url = 'https://touch.dujia.qunar.com/list?modules=list%2CbookingInfo%2CactivityDetail&dep={}&query={}&dappDealTrace=false&mobFunction=%E6%89%A9%E5%B1%95%E8%87%AA%E7%94%B1%E8%A1%8C&cfrom=zyx&it=FreetripTouchin&date=&configDepNew=&needNoResult=true&originalquery={}&limit=10,28&includeAD=true&qsact=search'.format(
-            start, end, end)
-        headers= {
-            'cookie':'QN99=8770; QN1=eIQjmVtYQgbBDaEiPevvAg==; csrfToken=zKMVroGqYK6fdBphXg8rqQ3MpcaiZ7TZ; QN269=AA9586A58FEC11E88A24FA163E233FC1; QN601=3f55b4673bbd18ac3206bfea7c5996d3; QunarGlobal=10.86.213.148_6291bf49_164d0ba9dbf_-1a4d|1532510727219; _i=RBTKSaIAM3KBlurx6OwRjfuQ8pEx; QN300=auto_4e0d874a; QN163=0; QN6=auto_4e0d874a; QN48=tc_427b9f2555dccb4c_164d9787381_d960; _RSG=Ue4lzWGVuXAKnGpozKI.OB; _RDG=28c738c8ddc979203b2642a9f86b2ac273; _RGUID=a8787d08-3dbc-4a1e-b63e-494f72cd0c54; QN205=auto_4e0d874a; QN234=home_free_t; _vi=Xan8_FldA2NGBwqzRSKDNIYHisxd4ARxiomsg1mowQsC4OV3wCXnooJECkbZWsL9_3XGq9mmj5lTyMlGPRfgZD0jC_eS-Vas8fJyOdtOVO02USpBUqqwRZ1LfhiofVGvkPVi9NW0omogB1BkpWCaX2atkxba7uWItHjFuSd5R2NK; QN162=%E6%B7%B1%E5%9C%B3; QN233=FreetripTouchin; DJ12=eyJxIjoi5p2t5bee6Ieq55Sx6KGMIiwic3UiOiI4MDU5MjU4OTIiLCJkIjoi5rex5ZyzIiwiZSI6IkEiLCJsIjoiMCwyOCIsInRzIjoiZGQxNDZmZWYtMWY2NC00N2U5LWIyNjAtMTY0ODE2ZTlmYmQ0In0; _RF1=113.110.176.137; _pk_ref.1.8600=%5B%22%22%2C%22%22%2C1533395038%2C%22http%3A%2F%2Ftouch.qunar.com%2F%22%5D; _pk_ses.1.8600=*; _pk_id.1.8600=92302397325aca81.1533353790.5.1533395068.1533392908.; QN243=168',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 '
-                          '(KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',
-            'Referer': 'https://touch.dujia.qunar.com/p/list?cfrom=zyx&dep={}&query={}&it=FreetripTouchin&et=home_free_t'.format(quote(start),quote(end))
-        }
+    train_url = "https://kyfw.12306.cn/otn/leftTicket/query?leftTicketDTO.train_date={day}&leftTicketDTO.from_station={start}&leftTicketDTO.to_station={end}&purpose_codes=ADULT".format(day=day,start=start,end=end)
+    print(train_url)
+    res=requests.get(train_url)
+    if res.status_code==200:
+        data=res.json()['data']
+        citydata = data['map']
+        lis=data['result']
+        result=[]
+        for item in lis:
+            temp=item.split("|")
+            print(temp)
+            result.append({
+                "car_no":temp[3],
+                "start":citydata[temp[6]],
+                "end":citydata[temp[7]],
+                "start_time":temp[8],
+                "end_time":temp[9],
+                "time":temp[10],
+                "departure_date":temp[13],
+                "swz":temp[32],#商务座
+                "ydz":temp[31],
+                "edz":temp[30],#二等座
+                "rw":temp[23],#软卧
+                "yw":temp[19],#硬卧
+                "status":temp[29] or "无",
+            })
+        if not result:
+            return HttpResponse("没有合适的高铁票")
+        return render(request,'train.html',{"result":result})
+
     return render(request,'train.html',{"res":{}})
-    
+
+
+def flight(request,*args,**kwargs):
+    '''飞机票查询'''
+    start = request.GET.get("start", "武汉")
+    end = request.GET.get("end", "北京")
+    if start.endswith("市"):
+        start = start[:-1]
+    if end.endswith("市"):
+        end = end[:-1]
+    date=request.GET.get('date',datetime.today().strftime("%Y-%m-%d"))
+    url = "https://m.flight.qunar.com/flight/api/touchInnerList"
+    data = {"arrCity": end, "baby": "0",
+            "cabinType": "0",
+            "child": "0",
+            "depCity": start,
+            "from": "touch_index_search",
+            "goDate": date,
+            "firstRequest": True,
+            "startNum": 0,
+            "sort": 5,
+            "_v": 2,
+            "underageOption": "",
+            "more": 1,
+            "__m__": "29da7c7146186274c3b33c7dcef04133"}
+    res=requests.post(url,json=data)
+    data=res.json()
+    items=[]
+    print(data)
+    if data['ret']:
+        try:
+            for item in data['data']['flights']:
+                pprint(item)
+                info=item['binfo']
+                info['price']=item['minPrice']
+                items.append(info)
+        except:
+            pass
+    if not items:
+        return HttpResponse("没有查询到合适的航班")
+    return render(request,'flight.html',{"items":items})

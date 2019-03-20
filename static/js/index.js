@@ -9,22 +9,30 @@ map.centerAndZoom(new BMap.Point(116.404, 39.915), 11); // 初始化地图,设�
 map.addControl(new BMap.MapTypeControl({
     mapTypes: [BMAP_NORMAL_MAP, BMAP_HYBRID_MAP]
 }));
+renderOptions={map: map,panel : "panel",autoViewport:true};
 myGeo = new BMap.Geocoder();
 
+driving = new BMap.DrivingRoute(map, {renderOptions: renderOptions,onSearchComplete:onSearchComplete});
+walk = new BMap.WalkingRoute(map, {renderOptions: renderOptions});
+riding = new BMap.RidingRoute(map, {renderOptions: renderOptions});
+transit = new BMap.TransitRoute(map, {renderOptions: renderOptions});
 // 自动定位
 let geolocation = new BMap.Geolocation();
-geolocation.getCurrentPosition(function(r) {
+geolocation.getCurrentPosition(function(r){
+    if(r.point.lng){
         let mk = new BMap.Marker(r.point);
         map.addOverlay(mk);
         map.panTo(r.point);
-},
-{
-    enableHighAccuracy: true
-});
+    }else{
+        console.log("无法定位")
+    }
 
-map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放
+},{enableHighAccuracy: true});
 
-
+function onSearchComplete(res) {
+    console.log(res.getNumPlans(),"方案个数");
+    console.log(res,"onSearchComplete")
+}
 // 右键
 let menu = new BMap.ContextMenu();
 let txtMenuItem = [{
@@ -147,6 +155,35 @@ ac.addEventListener("onconfirm", function(e) {
 // 点击事件
 $("#search-button").click(function( e ) {
     let routeType=$("#search-button").attr('route-type');
+    // sy = new BMap.Symbol(BMap_Symbol_SHAPE_BACKWARD_OPEN_ARROW, {
+    //     scale: 0.6,//图标缩放大小
+    //     strokeColor:'#fff',//设置矢量图标的线填充颜色
+    //     strokeWeight: '2',//设置线宽
+    // });
+    // icons = new BMap.IconSequence(sy, '10', '30');
+    //
+    // $.get("/trip/transit/",{"type":routeType},function (res) {
+    //    if(res.status!==0){
+    //        alert(res.message)
+    //    }else{
+    //        let points=[];
+    //        for(i in res.result.routes[0].steps){
+    //            let point = res.result.routes[0].steps[i].end_location;
+    //            points.push(new BMap.Point(point.lng,point.lat));
+    //            map.centerAndZoom(new BMap.Point(point.lng,point.lat), 15)
+    //        }
+    //        let polyline =new BMap.Polyline(points, {
+    //                enableEditing: false,//是否启用线编辑，默认为false
+    //                enableClicking: true,//是否响应点击事件，默认为true
+    //                icons:[icons],
+    //                strokeWeight:'8',//折线的宽度，以像素为单位
+    //                strokeOpacity: 0.8,//折线的透明度，取值范围0 - 1
+    //                strokeColor:"#18a45b" //折线颜色
+    //             });
+    //        map.addOverlay(polyline);          //增加折线
+    //
+    //    }
+    // });
     if(routeType==='bike'){
         $(".bike-tab").click();
     }else if(routeType==='drive'){
@@ -165,12 +202,13 @@ $(".bus-tab").click(function() {
     searchBtn.addClass("bus");
     $("#search-button").attr("route-type",'bus');
         // RoutePlanning()
-    let transit = new BMap.TransitRoute(map, {
-    renderOptions: {map: map, panel: "panel"}
-    });
-    let location=getlocation();
-    console.log(location);
-    transit.search(location.start, location.end);
+
+    let l=getpoint();
+    if(l.start&&l.end){
+        map.clearOverlays();
+        transit.search(l.start, l.end);
+    }
+
 });
 
 $(".drive-tab").click(function() {
@@ -179,10 +217,13 @@ $(".drive-tab").click(function() {
     searchBtn.addClass("drive");
     $("#search-button").attr("route-type",'drive');
     //     RoutePlanning()
+    let l=getpoint();
+    if(l.start&&l.end){
+        console.log(l.start,l.end,"驾车");
+        map.clearOverlays();
+        driving.search(l.start, l.end);
+    }
 
-    let driving = new BMap.DrivingRoute(map, {renderOptions: {map: map, panel: "panel"}});
-    let l=getlocation();
-    driving.search(l.start, l.end);
 });
 
 $(".walk-tab").click(function() {
@@ -190,14 +231,11 @@ $(".walk-tab").click(function() {
     searchBtn.removeClass("bus drive walk bike");
     searchBtn.addClass("walk");
     $("#search-button").attr("route-type",'walk');
-    //     RoutePlanning()
-    let location=getlocation();
-    renderOptions={map: map,panel : "panel",autoViewport:true};
-    let walk = new BMap.WalkingRoute(map, {
-        renderOptions: renderOptions
-    });
-    if(location.start && location.end){
-        walk.search(location.start, location.end);
+    let l=getpoint();
+    if(l.start && l.end){
+        map.clearOverlays();
+        console.log(l.start,l.end,"步行");
+        walk.search(l.start, l.end);
     }
 });
 
@@ -206,13 +244,10 @@ $(".bike-tab").click(function() {
     searchBtn.removeClass("bus drive walk bike");
     searchBtn.addClass("bike");
     $("#search-button").attr("route-type",'bike');
-    riding = new BMap.RidingRoute(map, {
-    renderOptions: {
-        map: map,
-        panel : "panel"}
-    });
+
     let l=getpoint();
     if(l.start && l.end){
+        map.clearOverlays();
         riding.search(l.start, l.end);
     }
 });
@@ -373,7 +408,13 @@ function getpoint() {
     blng=inputb.attr('lng');
     let start=new BMap.Point(alng,alat);
     let end = new BMap.Point(blng,blat);
-    return {"start":start,"end":end}
+    if(alat&&blat){
+        return {"start":start,"end":end}
+    }else{
+        return {"start":null,"end":null}
+    }
+
+
 }
 
 
@@ -385,6 +426,16 @@ $("#gotrain").click(function (e) {
         alert("请选择出发地和目的地")
     }else{
         let url ="/trip/train/?start="+go+"&end="+form;
+        window.open(url)
+    }
+});
+$("#flight").click(function (e) {
+    let go = window.localStorage.getItem('go');
+    let form =window.localStorage.getItem('form');
+    if(!go||!form){
+        alert("请选择出发地和目的地")
+    }else{
+        let url ="/trip/flight/?start="+go+"&end="+form;
         window.open(url)
     }
 });

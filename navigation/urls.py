@@ -22,6 +22,7 @@ urlpatterns = [
     path("transit/", views.transit),
     path("gd/", views.gd),
     path('historylocation/',views.historylocation),
-    path('train/',views.getTrainList)
+    path('train/',views.getTrainList),
+    path('flight/',views.flight)
 
 ]

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>飞机票查询</title>
+
+    <style>
+        table, th , td  {
+          border: 1px solid grey;
+          border-collapse: collapse;
+          padding: 5px;
+        }
+        table tr:nth-child(odd) {
+          background-color: #f1f1f1;
+        }
+        table tr:nth-child(even) {
+          background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<table>
+    <tbody>
+    <td>航空公司</td>
+    <td>航班</td>
+    <td>机型</td>
+    <td>出发地</td>
+    <td>目的地</td>
+    <td>出发时间</td>
+    <td>到达时间</td>
+    <td>票价</td>
+    {% for item in items %}
+    <tr>
+        <td>
+            <img class="air-logo" src="{{ item.carrier }}" data-reactid=".1.2.3.2.0.$9C8542.0.0.0.0.0:$0.0.0">
+            {{ item.name }}
+        </td>
+        <td>{{ item.airCode }}</td>
+        <td>{{ item.planeFullType }}</td>
+        <td>{{ item.depAirport }}{{ item.depTerminal }}</td>
+        <td>{{ item.arrAirport }}{{ item.arrTerminal }}</td>
+        <td>{{ item.depTime }}</td>
+        <td>{{ item.arrTime }}</td>
+        <td>{{ item.price }}</td>
+    </tr>
+    {% endfor%}
+    </tbody>
+
+</table>
+
+
+
+</body>
+</html>
