@@ -10514,3 +10514,7 @@ my
     width: 120px;
     background-color: #fff;
 }
+
+.amap-call{
+    display: none;
+}
