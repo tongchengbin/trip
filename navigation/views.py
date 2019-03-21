@@ -24,6 +24,7 @@ def gethistory(request,*args,**kwargs):
     results=[]
     for item in queryset:
         results.append({
+            "ctime":item.ctime,
             "name":item.name,
             "district":item.address,
             "location":{"lng": item.lng,
@@ -70,12 +71,6 @@ def gd(request,*args,**kwargs):
     return render(request,"gd.html")
 
 
-def tip(request,*args,**kwargs):
-    queryset=history.objects.all().order_by('-ctime').values('name','address','lng','lat')[:10]
-    results=[]
-    for i in queryset:
-        results.append(i)
-    return render(request,"TipBody.html")
 
 def getTrainList(request,*args,**kwargs):
     source=request.GET.get("start","武汉")
@@ -164,7 +159,7 @@ def flight(request,*args,**kwargs):
     return render(request,'flight.html',{"items":items})
 
 
-def geocoder(origin):
+def geocoder(origin,all=False):
     '''地址解析 返回city name'''
     lng,lat = origin.split(",")
     url="http://api.map.baidu.com/geocoder/v2/"
@@ -177,8 +172,28 @@ def geocoder(origin):
     }
     response=requests.get(url,params=params)
     data=response.json()
-    pprint(data)
+    if all:
+        return data
     city=data['result']['addressComponent']['city']
     if city.endswith("市"):
         city=city[:-1]
     return city
+
+
+def addhistory(request,*args,**kwargs):
+    try:
+        data=json.loads(request.body)
+    except:
+        return JsonResponse({})
+    has=history.objects.filter(address=data['address'])
+    if has:
+        has.update(ctime=datetime.now())
+    else:
+        history.objects.create(
+            address=data['address'],
+            name=data['name'],
+            lng=data['location']['lng'],
+            lat=data['location']['lat'],
+            district=data['district']
+        )
+    return JsonResponse({})

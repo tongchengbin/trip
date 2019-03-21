@@ -247,10 +247,6 @@ function clearhistory(flag) {
     }
 }
 
-$(".historya").click(function () {
-    console.log(this)
-});
-
 
 
 tipinfo=$(".tip-info");
@@ -284,6 +280,7 @@ function gettip(e) {
       })
     }else{
         $.get('/trip/gethistory',function (result) {
+            window.localStorage.setItem('tips',JSON.stringify(result.results));
             html="";
             for(let i=0;i<result.results.length;i++){
                 let item =result.results[i];
@@ -302,6 +299,15 @@ function clicktip(index) {
     target_id=tipinfo.attr('item');
     console.log(JSON.parse(window.localStorage.getItem('tips')));
     data = JSON.parse(window.localStorage.getItem('tips'))[index];
+    $.ajax({
+            url:'/trip/addhistory/',
+            data:JSON.stringify(data),
+            type:"POST",
+            contentType:"application/json",
+            success:function (res) {
+                console.log(res)
+            }
+        });
     document.getElementById(target_id).value=data.name;
     window.localStorage.setItem(target_id,data.location.lng+","+data.location.lat);
     $(tipinfo).empty()
@@ -311,6 +317,13 @@ function clicktip(index) {
 
 // 点击事件
 $("#search-button").click(function( e ) {
+    // 添加记录
+    let a=window.localStorage.getItem("tipa");
+    let b =window.localStorage.getItem("tipb");
+    if(!a||!b){
+        alert("请选择地址");
+        return
+    }
     let routeType=$("#search-button").attr('route-type');
     if(routeType==='bike'){
         bike()
@@ -321,6 +334,8 @@ $("#search-button").click(function( e ) {
     }else{
         bus()
     }
+
+
 });
 
 $(".bus-tab").click(function() {

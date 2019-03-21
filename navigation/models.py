@@ -10,3 +10,4 @@ class history(models.Model):
     lat=models.FloatField(verbose_name="lat")
     lng=models.FloatField(verbose_name='lng')
     ctime=models.DateTimeField(auto_now_add=True)
+    district=models.CharField(max_length=64,verbose_name="district")
