@@ -10518,3 +10518,8 @@ my
 .amap-call{
     display: none;
 }
+
+.plan-nobus{
+    overflow-y: auto;
+    max-height: 600px;
+}
