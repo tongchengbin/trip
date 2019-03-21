@@ -144,11 +144,10 @@
 <div id="container"></div>
 <div id="left-panel" class="left-panel">
         <div id="searchbox" class="clearfix">
-
         <div id="searchbox-container">
           <div id="sole-searchbox-content" class="searchbox-content" style="display: none;">
             <input id="sole-input" class="searchbox-content-common" type="text" name="word" autocomplete="off" maxlength="256" placeholder="搜地点、查公交、找路线" value="">
-            <div class="input-clear" title="清空" style="display: none;"></div>
+            <div class="input-clear" onclick="inputClear('tipa')" title="清空" style="display: none;"></div>
             <div class="searchbox-content-button right-button route-button loading-button" data-title="路线" data-tooltip="1"></div>
           </div>
           <div id="route-searchbox-content" class="searchbox-content route-searchbox-content bike">
@@ -183,13 +182,13 @@
                   <div class="routebox-input route-start">
                     <div class="route-input-icon"></div>
                     <input id="tipa" maxlength="256" placeholder="输入起点或在图区上选点" class="route-start-input" type="text" oninput="gettip(this)" onclick="gettip(this)">
-                    <div class="input-clear" title="清空" style="display: block;"></div>
+                    <div class="input-clear" onclick="inputClear('tipa')" title="清空" style="display: block;"></div>
                     <div class="route-input-add-icon"></div>
                   </div>
                   <div class="routebox-input route-end">
                     <div class="route-input-icon"></div>
                     <input id="tipb" maxlength="256" placeholder="输入终点或在图区上选点" class="route-end-input" type="text" oninput="gettip(this)" onclick="gettip(this)" autocomplete="off">
-                    <div class="input-clear" title="清空" style="display: block;"></div>
+                    <div class="input-clear" onclick="inputClear('tipb')" title="清空" style="display: block;"></div>
                   </div>
                 </div>
               </div>

@@ -12,14 +12,17 @@ ak="GzVtCw9asuvgprsG0i2Ip4xuC4RDogpq"
 # Create your views here.
 import requests
 def index(request,*args,**kwargs):
+    '''百度地图'''
     return render(request, "index.html")
-
-
-def get_options(request,*args,**kwargs):
-    url="http://api.map.baidu.com/place/v2/suggestion?query=天安门&region=false&city_limit=false&output=json&ak={ak}".format(ak=ak)
-    res=requests.get(url)
-    return JsonResponse({"options":res.json().get("result")})
 def gethistory(request,*args,**kwargs):
+    '''
+        获取搜索历史
+    :param request:
+    :param args:
+    :param kwargs:
+    :return: 最后十条记录
+    '''
+    
     queryset = history.objects.all().order_by('-ctime')[:10]
     results=[]
     for item in queryset:
@@ -35,6 +38,13 @@ def gethistory(request,*args,**kwargs):
     return JsonResponse({"results":results})
     
 def transit(request,*args,**kwargs):
+    '''
+        web导航
+    :param request:
+    :param args:
+    :param kwargs:
+    :return:
+    '''
     tp=request.GET.get('type','walk')
     origin=request.GET.get('origin')
     destination = request.GET.get('destination')
@@ -63,16 +73,21 @@ def transit(request,*args,**kwargs):
     data=response.json()
     if data['status']!=0:
         return JsonResponse(data)
-    print(data)
     return JsonResponse(data)
     # return render(request,'transit.html',{"data":data})
 
 def gd(request,*args,**kwargs):
+    '''高德地图'''
     return render(request,"gd.html")
 
-
-
 def getTrainList(request,*args,**kwargs):
+    '''
+        火车高铁查询
+    :param request:
+    :param args:
+    :param kwargs:
+    :return:
+    '''
     source=request.GET.get("start","武汉")
     des=request.GET.get("end","北京")
     #地址解析
@@ -87,7 +102,6 @@ def getTrainList(request,*args,**kwargs):
     if not day:
         day=datetime.today().strftime("%Y-%m-%d")
     train_url = "https://kyfw.12306.cn/otn/leftTicket/query?leftTicketDTO.train_date={day}&leftTicketDTO.from_station={start}&leftTicketDTO.to_station={end}&purpose_codes=ADULT".format(day=day,start=start,end=end)
-    print(train_url)
     res=requests.get(train_url)
     if res.status_code==200:
         data=res.json()['data']
@@ -96,7 +110,6 @@ def getTrainList(request,*args,**kwargs):
         result=[]
         for item in lis:
             temp=item.split("|")
-            print(temp)
             result.append({
                 "car_no":temp[3],
                 "start":citydata[temp[6]],
@@ -117,7 +130,6 @@ def getTrainList(request,*args,**kwargs):
         return render(request,'train.html',{"result":result})
 
     return render(request,'train.html',{"res":{}})
-
 
 def flight(request,*args,**kwargs):
     '''飞机票查询'''
@@ -144,11 +156,9 @@ def flight(request,*args,**kwargs):
     res=requests.post(url,json=data)
     data=res.json()
     items=[]
-    print(data)
     if data['ret']:
         try:
             for item in data['data']['flights']:
-                pprint(item)
                 info=item['binfo']
                 info['price']=item['minPrice']
                 items.append(info)
@@ -158,9 +168,14 @@ def flight(request,*args,**kwargs):
         return HttpResponse("没有查询到合适的航班")
     return render(request,'flight.html',{"items":items})
 
-
 def geocoder(origin,all=False):
-    '''地址解析 返回city name'''
+    '''
+        地址解析
+    :param origin: 坐标
+    :param all: 是否返回所有信息
+    :return: city | 所有信息
+    '''
+   
     lng,lat = origin.split(",")
     url="http://api.map.baidu.com/geocoder/v2/"
     params={
@@ -179,8 +194,14 @@ def geocoder(origin,all=False):
         city=city[:-1]
     return city
 
-
 def addhistory(request,*args,**kwargs):
+    '''
+        添加搜索记录
+    :param request:
+    :param args:
+    :param kwargs:
+    :return:
+    '''
     try:
         data=json.loads(request.body)
     except:

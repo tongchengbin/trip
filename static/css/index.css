@@ -10497,6 +10497,11 @@ my
     z-index: 100;
 }
 .bt-info > div >a {
+    color: #fff;
+    font-size:14px;
+    text-decoration: none;
+    line-height:38px;
+    padding: 14px;
     height: 38px;
     background-color: #3385ff;
 }

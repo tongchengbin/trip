@@ -4,8 +4,7 @@
 // 導航都是point
 let map = new AMap.Map('container', {
     resizeEnable: true, //是否监控地图容器尺寸变化
-    zoom:11, //初始化地图层级
-    center: [116.397428, 39.90923] //初始化地图中心点
+    zoom:14, //初始化地图层级
 });
 //输入提示
 let autoa = new AMap.Autocomplete({
@@ -17,6 +16,24 @@ let autoa = new AMap.Autocomplete({
 tipb=$("#input");
 
 
+ERROR={
+    "OK":"请求正常",
+    "INVALID_USER_KEY":"key不正确或过期",
+    "SERVICE_NOT_AVAILABLE":"服务不可用",
+    "INVALID_USER_DOMAIN":"INVALID_USER_DOMAIN",
+    "USERKEY_PLAT_NOMATCH":"USERKEY_PLAT_NOMATCH",
+    "NOT_SUPPORT_HTTPS":"服务不支持https请求",
+    "INSUFFICIENT_PRIVILEGES":"权限不足，服务请求被拒绝",
+    "USER_KEY_RECYCLED":"Key被删除",
+    "INVALID_PARAMS":"请求参数非法",
+    "MISSING_REQUIRED_PARAMS":"缺少必填参数",
+    "UNKNOWN_ERROR":"其他未知错误",
+    "OUT_OF_SERVICE":"规划点（包括起点、终点、途经点）不在中国陆地范围内",
+    "NO_ROADS_NEARBY":"划点（起点、终点、途经点）附近搜不到路",
+    "ROUTE_FAIL":"路线计算失败，通常是由于道路连通关系导致",
+    "OVER_DIRECTION_RANGE":"起点终点距离过长。",
+    "ENGINE_RESPONSE_DATA_ERROR":"服务响应失败。"
+};
 // AMap.event.addListener(autoa, "select", selecta);//注册监听，当选中某条记录时会触发
 // AMap.event.addListener(autob, "select", selectb);
 function selectb(a) {
@@ -79,19 +96,37 @@ function bus() {
     handleActiveClass('bus');
     let a=window.localStorage.getItem("tipa");
     let b =window.localStorage.getItem("tipb");
-     let transOptions = {
-         map: map,
-         city:"北京市",
-         panel: 'panel-bus',
-         policy: AMap.TransferPolicy.LEAST_TIME
-     };
      if(!a || !b){
          alert("请选择地点")
      }
-     let transfer = new AMap.Transfer(transOptions);
-     transfer.search(new AMap.LngLat(a.split(",")[0],a.split(",")[1]), new AMap.LngLat(b.split(",")[0],b.split(",")[1]), function(status, result) {
-         console.log(result,status)
-    })
+     city=null;
+     cityd=null;
+     AMap.plugin('AMap.Geocoder', function() {
+            let geocoder = new AMap.Geocoder({
+                city: '全国'
+            });
+            let lnglata=a.split(",");
+            let lnglatb=b.split(",");
+            geocoder.getAddress(lnglata, function(status, result) {
+                console.log(result,"dsfsdfdsf");
+            if (status === 'complete' && result.info === 'OK') {
+                city=result.regeocode.addressComponent.city || result.regeocode.addressComponent.province ;
+                geocoder.getAddress(lnglatb, function(status, result) {
+                  cityd= result.regeocode.addressComponent.city || result.regeocode.addressComponent.province ;
+                  let transOptions = {
+                      map: map,
+                      city:city,
+                      cityd:cityd,
+                      panel: 'panel-bus',
+                      policy: AMap.TransferPolicy.LEAST_TIME
+                  };
+                  let transfer = new AMap.Transfer(transOptions);
+                  transfer.search(new AMap.LngLat(a.split(",")[0],a.split(",")[1]), new AMap.LngLat(b.split(",")[0],b.split(",")[1]), searchResult)
+                })
+            }
+        });
+        });
+
 }
 function driving() {
     // 驾车导航
@@ -105,10 +140,7 @@ function driving() {
      if(!origin || !des){
          return
      }
-     transfer.search(new AMap.LngLat(origin.split(",")[0],origin.split(",")[1]), new AMap.LngLat(des.split(",")[0],des.split(",")[1]), function(status, result) {
-    // result即是对应的公交路线数据信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_TransferResult
-
-    })
+     transfer.search(new AMap.LngLat(origin.split(",")[0],origin.split(",")[1]), new AMap.LngLat(des.split(",")[0],des.split(",")[1]),searchResult)
 }
 function walking() {
     //步行导航
@@ -123,9 +155,7 @@ function walking() {
          return
      }
     // 根据起终点坐标规划步行路线
-    walking.search([origin.split(",")[0],origin.split(",")[1]], [des.split(",")[0],des.split(",")[1]], function(status, result) {
-    // result即是对应的步行路线数据信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_WalkingResult
-    });
+    walking.search([origin.split(",")[0],origin.split(",")[1]], [des.split(",")[0],des.split(",")[1]], searchResult);
 }
 function bike() {
     //骑行导航
@@ -140,9 +170,7 @@ function bike() {
          return
      }
     //根据起终点坐标规划骑行路线
-    riding.search([origin.split(",")[0],origin.split(",")[1]],[des.split(",")[0],des.split(",")[1]], function(status, result) {
-    // result即是对应的骑行路线数据信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_RidingResult
-    })
+    riding.search([origin.split(",")[0],origin.split(",")[1]],[des.split(",")[0],des.split(",")[1]],searchResult)
 }
 function handleActiveClass(name) {
     $('#walking').removeClass("active");
@@ -292,8 +320,6 @@ function gettip(e) {
 
         })
     }
-
-
 }
 function clicktip(index) {
     target_id=tipinfo.attr('item');
@@ -405,4 +431,17 @@ function revertAddr() {
     itemb=window.localStorage.getItem('tipb');
     window.localStorage.setItem('tipa',itemb);
     window.localStorage.setItem('tipb',itema)
+}
+
+
+function inputClear(tag_id) {
+    document.getElementById(tag_id).value=null;
+    window.localStorage.removeItem(tag_id)
+}
+
+function searchResult(status,result) {
+    console.log(status,result);
+    if(status!=="complete" && result){
+        alert(ERROR[result])
+    }
 }

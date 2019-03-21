@@ -18,7 +18,6 @@ from django.urls import path,include
 from navigation import views
 urlpatterns = [
     path('',views.index ),
-    path("get_options/",views.get_options),
     path("transit/", views.transit),
     path("gd/", views.gd),
     path('addhistory/',views.addhistory),
