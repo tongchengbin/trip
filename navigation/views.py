@@ -19,8 +19,20 @@ def get_options(request,*args,**kwargs):
     url="http://api.map.baidu.com/place/v2/suggestion?query=天安门&region=false&city_limit=false&output=json&ak={ak}".format(ak=ak)
     res=requests.get(url)
     return JsonResponse({"options":res.json().get("result")})
-
-
+def gethistory(request,*args,**kwargs):
+    queryset = history.objects.all().order_by('-ctime')[:10]
+    results=[]
+    for item in queryset:
+        results.append({
+            "name":item.name,
+            "district":item.address,
+            "location":{"lng": item.lng,
+                        "lat": item.lat
+                        },
+            "address":item.address
+        })
+    return JsonResponse({"results":results})
+    
 def transit(request,*args,**kwargs):
     tp=request.GET.get('type','walk')
     origin=request.GET.get('origin')
@@ -58,22 +70,20 @@ def gd(request,*args,**kwargs):
     return render(request,"gd.html")
 
 
-def historylocation(request,*args,**kwargs):
+def tip(request,*args,**kwargs):
     queryset=history.objects.all().order_by('-ctime').values('name','address','lng','lat')[:10]
     results=[]
     for i in queryset:
-        print(i)
         results.append(i)
-    return HttpResponse(json.dumps(results))
+    return render(request,"TipBody.html")
 
 def getTrainList(request,*args,**kwargs):
-
-    start=request.GET.get("start","武汉")
-    end=request.GET.get("end","北京")
-    if start.endswith("市"):
-        start=start[:-1]
-    if end.endswith("市"):
-        end = end[:-1]
+    source=request.GET.get("start","武汉")
+    des=request.GET.get("end","北京")
+    #地址解析
+    start=geocoder(source)
+    end=geocoder(des)
+    
     day=request.GET.get('day',None)
     station_file=os.path.join(settings.BASE_DIR,"static/station_code.json")
     stations=json.load(open(station_file,'r',encoding='utf-8'))
@@ -116,12 +126,11 @@ def getTrainList(request,*args,**kwargs):
 
 def flight(request,*args,**kwargs):
     '''飞机票查询'''
-    start = request.GET.get("start", "武汉")
-    end = request.GET.get("end", "北京")
-    if start.endswith("市"):
-        start = start[:-1]
-    if end.endswith("市"):
-        end = end[:-1]
+    source = request.GET.get("start", "武汉")
+    des = request.GET.get("end", "北京")
+    # 地址解析
+    start = geocoder(source)
+    end = geocoder(des)
     date=request.GET.get('date',datetime.today().strftime("%Y-%m-%d"))
     url = "https://m.flight.qunar.com/flight/api/touchInnerList"
     data = {"arrCity": end, "baby": "0",
@@ -153,3 +162,23 @@ def flight(request,*args,**kwargs):
     if not items:
         return HttpResponse("没有查询到合适的航班")
     return render(request,'flight.html',{"items":items})
+
+
+def geocoder(origin):
+    '''地址解析 返回city name'''
+    lng,lat = origin.split(",")
+    url="http://api.map.baidu.com/geocoder/v2/"
+    params={
+        "ak":ak,
+        "latest_admin":1,
+        "pois":1,
+        "location":"%s,%s"%(lat,lng),
+        "output":"json"
+    }
+    response=requests.get(url,params=params)
+    data=response.json()
+    pprint(data)
+    city=data['result']['addressComponent']['city']
+    if city.endswith("市"):
+        city=city[:-1]
+    return city

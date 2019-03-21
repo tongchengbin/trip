@@ -21,7 +21,7 @@ urlpatterns = [
     path("get_options/",views.get_options),
     path("transit/", views.transit),
     path("gd/", views.gd),
-    path('historylocation/',views.historylocation),
+    path('gethistory/',views.gethistory),
     path('train/',views.getTrainList),
     path('flight/',views.flight)
 

@@ -13,7 +13,6 @@
                 <div id="panel"></div>
     <div id="left-panel" class="left-panel">
         <div id="searchbox" class="clearfix">
-
         <div id="searchbox-container">
           <div id="sole-searchbox-content" class="searchbox-content" style="display: none;">
             <input id="sole-input" class="searchbox-content-common" type="text" name="word" autocomplete="off" maxlength="256" placeholder="搜地点、查公交、找路线" value="" />
@@ -51,7 +50,7 @@
                 <div class="routebox-inputs">
                   <div class="routebox-input route-start">
                     <div class="route-input-icon"></div>
-                    <input id="tipa" maxlength="256" placeholder="输入起点或在图区上选点" class="route-start-input" type="text" value=""/>
+                    <input id="tipa" onclick="test(this)" maxlength="256" placeholder="输入起点或在图区上选点" class="route-start-input" type="text" value=""/>
                     <div class="input-clear" title="清空" style="display: block;"></div>
                     <div class="route-input-add-icon"></div>
                   </div>
@@ -67,7 +66,6 @@
         </div>
         <button id="search-button" data-title="搜索" data-tooltip="2">
         </button>
-
       </div>
         <ul id="cards-level1" class="cardlist"></ul>
     </div>
@@ -78,6 +76,7 @@
     <div class="bt-info">
         <div><a id="gotrain">高铁票</a><a id="flight">飞机票</a></div>
     </div>
+    <div class="tipinfo"></div>
   </body>
   <script src="/static/js/index.js" type="text/javascript"></script>
 <script type="text/javascript">

@@ -90,66 +90,83 @@ function menuAddEndAddr(e) {
     // })
 }
 
-let ac = new BMap.Autocomplete( //建立一个自动完成的对象
-{
-    "input": "tipa",
-    "location": map
-});
-let ec = new BMap.Autocomplete( //建立一个自动完成的对象
-{
-    "input": "tipb",
-    "location": map
-});
+// let ac = new BMap.Autocomplete( //建立一个自动完成的对象
+// {
+//     "input": "tipa",
+//     "location": map
+// });
+// let ec = new BMap.Autocomplete( //建立一个自动完成的对象
+// {
+//     "input": "tipb",
+//     "location": map
+// });
 // 鼠标放在下拉列表上的事件
-ac.addEventListener("onhighlight", function(e) {
-	let str = "";
-	let _value = e.fromitem.value;
-	let value = "";
-	if (e.fromitem.index > -1) {
-		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-	}
-	str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
-	value = "";
-	if (e.toitem.index > -1) {
-		_value = e.toitem.value;
-		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-	}
-	str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
-	G("searchResultPanel").innerHTML = str;
-});
-ec.addEventListener("onhighlight", function(e) {
-	let str = "";
-	let _value = e.fromitem.value;
-	let value = "";
-	if (e.fromitem.index > -1) {
-		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-	}
-	str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
-	value = "";
-	if (e.toitem.index > -1) {
-		_value = e.toitem.value;
-		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-	}
-	str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
-	G("searchResultPanel").innerHTML = str;
-});
+// ac.addEventListener("onhighlight", function(e) {
+// 	let str = "";
+// 	let _value = e.fromitem.value;
+// 	let value = "";
+// 	if (e.fromitem.index > -1) {
+// 		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+// 	}
+// 	str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+// 	value = "";
+// 	if (e.toitem.index > -1) {
+// 		_value = e.toitem.value;
+// 		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+// 	}
+// 	str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+// 	G("searchResultPanel").innerHTML = str;
+// });
+// ec.addEventListener("onhighlight", function(e) {
+// 	let str = "";
+// 	let _value = e.fromitem.value;
+// 	let value = "";
+// 	if (e.fromitem.index > -1) {
+// 		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+// 	}
+// 	str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+// 	value = "";
+// 	if (e.toitem.index > -1) {
+// 		_value = e.toitem.value;
+// 		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+// 	}
+// 	str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+// 	G("searchResultPanel").innerHTML = str;
+// });
+// ac.addEventListener("onconfirm", function(e) {
+//     //鼠标点击下拉列表后的事件
+//     let _value = e.item.value;
+//     myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
+//     window.localStorage.setItem("form",_value.city);
+//     setPlace();
+//     myGeo.getPoint(myValue, function (res) {
+//         inputa.attr("lat",res.lat);
+//         inputa.attr('lng',res.lng);
+//         myGeo.getLocation(new BMap.Point(res.lng, res.lat),function (result) {
+//             inputa.attr('value',result.address)
+//         })
+//         // $("#tipa").attr("origin",res.lat+","+res.lng)
+//     });
+// });
+// ec.addEventListener("onconfirm",function(e) { //鼠标点击下拉列表后的事件
+//     let _value = e.item.value;
+//     myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
+//     window.localStorage.setItem("go",_value.city);
+//     setPlace();
+//     myGeo.getPoint(myValue, function (res) {
+//         inputb.attr("lat",res.lat);
+//         inputb.attr("lng",res.lng);
+//         myGeo.getLocation(new BMap.Point(res.lng, res.lat),function (result) {
+//             inputb.attr('value',result.address)
+//         })
+//         // $("#end-addr").attr("destination",res.lat+","+res.lng)
+//     });
+// });
+
+
 
 let myValue = "";
-ac.addEventListener("onconfirm", function(e) {
-    //鼠标点击下拉列表后的事件
-    let _value = e.item.value;
-    myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
-    window.localStorage.setItem("form",_value.city);
-    setPlace();
-    myGeo.getPoint(myValue, function (res) {
-        inputa.attr("lat",res.lat);
-        inputa.attr('lng',res.lng);
-        myGeo.getLocation(new BMap.Point(res.lng, res.lat),function (result) {
-            inputa.attr('value',result.address)
-        })
-        // $("#tipa").attr("origin",res.lat+","+res.lng)
-    });
-});
+
 
 
 // 点击事件
@@ -267,29 +284,15 @@ function setPlace()
     });
     local.search(myValue);
 }
-ec.addEventListener("onconfirm",function(e) { //鼠标点击下拉列表后的事件
-    let _value = e.item.value;
-    myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
-    window.localStorage.setItem("go",_value.city);
-    setPlace();
-    myGeo.getPoint(myValue, function (res) {
-        inputb.attr("lat",res.lat);
-        inputb.attr("lng",res.lng);
-        myGeo.getLocation(new BMap.Point(res.lng, res.lat),function (result) {
-            inputb.attr('value',result.address)
-        })
-        // $("#end-addr").attr("destination",res.lat+","+res.lng)
-    });
-});
-
 
 
 function revertAddr() {
     // 调换位置
-    let start = $("#start-addr")[0].value;
-    let end = $("#end-addr")[0].value;
-    ac.setInputValue(end);
-    ec.setInputValue(start)
+    tipaValue=document.getElementById("tipa").value;
+    tipbValue=document.getElementById("tipb").value;
+    document.getElementById("tipa").value=tipbValue;
+    document.getElementById("tipb").value=tipaValue;
+
 }
 
 
@@ -349,23 +352,6 @@ function showLocationa(res) {
     content+="</ul>";
     historya.html(content);
 }
-function gethistory() {
-    // 获取历史记录
-    url="/trip/historylocation/";
-    $.get(url,function (res) {
-        data=JSON.parse(res);
-        content="<ul>";
-        for(let i in data){
-            content+="<li style='width: 368px;'>" +
-                "<a><i>广12路</i><em>广州市</em></a>"+
-            "</li>"
-        }
-        content+="</ul>";
-        historya.html(content);
-        historyb.html(content)
-    })
-}
-gethistory();
 // suggestion();
 
 

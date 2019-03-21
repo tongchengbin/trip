@@ -10496,3 +10496,16 @@ my
     overflow: hidden;
     z-index: 100;
 }
+.bt-info > div >a {
+    height: 38px;
+    background-color: #3385ff;
+}
+
+.context_menu{
+    width: 120px;
+    background-color: #fff;
+}
+.context_menu >p {
+    width: 120px;
+    background-color: #fff;
+}
