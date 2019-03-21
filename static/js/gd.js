@@ -344,6 +344,7 @@ function clicktip(index) {
 // 点击事件
 $("#search-button").click(function( e ) {
     // 添加记录
+    map.clearMap();
     let a=window.localStorage.getItem("tipa");
     let b =window.localStorage.getItem("tipb");
     if(!a||!b){
