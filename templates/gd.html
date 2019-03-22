@@ -19,33 +19,6 @@
              width: 300px;
              z-index: 999;
             }
-        .dirbox {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            width: 360px;
-            background: #3d93fd;
-            border-radius: 2px 3px 3px 2px;
-            box-shadow: 0 2px 2px rgba(0,0,0,.15);
-            display: none;
-        }
-        #indexbox {
-    position: relative;
-    box-sizing: border-box;
-}
-        #planForm {
-    position: relative;
-    padding: 14px;
-    padding-bottom: 68px;
-    background: #3d93fd;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
-}
-        .plan_wrap {
-    position: relative;
-    left: 0;
-    top: 0;
-}
         ul.tabs.dir_tab {
     width: 200px;
     border: 0;
@@ -55,16 +28,6 @@
     margin: 0 auto;
     white-space: nowrap;
 }
-        .tabs {
-    position: relative;
-    height: 28px;
-    border: 1px solid #e0e0e0;
-    border-radius: 2px;
-    margin: 0 auto;
-    width: 100%;
-    white-space: nowrap;
-    background-color: #fff;
-        }
         ol, ul {
                list-style: none;
         }
@@ -81,31 +44,11 @@
             background-image: url(https://map.baidu.com//webmap1.bdimg.com/wolfman/static/common/images/new/route-icon_2c25ce2.png);
             background-repeat: no-repeat;
         }
-        .dir_submit {
-            display: inline-block;
-            float: right;
-            padding: 0 25px;
-            height: 32px;
-            line-height: 32px;
-            background-color: #559ffb;
-            border: none;
-            border-radius: 2px;
-            color: #fff;
-            font-size: 14px;
-            text-decoration: none;
-            box-shadow: 0 1px 1px 0 rgba(0,0,0,.21);
-            -webkit-box-shadow: 0 1px 1px 0 rgba(0,0,0,.21);
-            -moz-box-shadow: 0 1px 1px 0 rgba(0,0,0,.21);
-        }
+
         .route-info .active{
             background-color: #fff;
         }
-        .tip{
-            padding-top: 10px;
-            background-color: #fff;
-            padding-bottom: 10px;
 
-        }
         .tip .auto-item{
             padding-left: 25px;
         }
@@ -115,18 +58,6 @@
             left: 59px;
             top: 137px;
             width: 289px;
-        }
-        .historyb{
-            display: none;
-            position: absolute;
-            top:129px;
-            left: 120.859px;
-            z-index: 1024;
-            background-color: #fefefe;
-            border: 1px solid #d1d1d1;
-            bottom: auto;
-            min-width: 175px;
-            visibility:visible;
         }
     </style>
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -183,7 +114,6 @@
                     <div class="route-input-icon"></div>
                     <input id="tipa" maxlength="256" placeholder="输入起点或在图区上选点" class="route-start-input" type="text" autocomplete="off" oninput="gettip(this)" onclick="gettip(this)">
                     <div class="input-clear" onclick="inputClear('tipa')" title="清空" style="display: block;"></div>
-                    <div class="route-input-add-icon"></div>
                   </div>
                   <div class="routebox-input route-end">
                     <div class="route-input-icon"></div>

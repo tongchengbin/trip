@@ -74,7 +74,21 @@ function ContextMenu(map) {
             geocoder.getAddress(lnglat, function(status, result) {
             if (status === 'complete' && result.info === 'OK') {
                 // result为对应的地理位置详细信息
-                input_tag.value=result.regeocode.formattedAddress
+                input_tag.value=result.regeocode.formattedAddress;
+                console.log(result);
+                // 添加紀錄
+                let data={"address":result.regeocode.formattedAddress,"name":result.regeocode.formattedAddress,
+                    "district":result.regeocode.addressComponent.district,
+                    "location":{"lng":lnglat[0],"lat":lnglat[1]}};
+                $.ajax({
+                    url:'/trip/addhistory/',
+                    data:JSON.stringify(data),
+                    type:"POST",
+                    contentType:"application/json",
+                    success:function (res) {
+                    console.log(res)
+                    }
+                    });
             }
         });
         });

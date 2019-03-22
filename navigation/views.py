@@ -26,7 +26,6 @@ def gethistory(request,*args,**kwargs):
     queryset = history.objects.raw('''select * from navigation_history ORDER BY ctime desc limit 10''')
     results=[]
     for item in queryset:
-        print(item.district)
         results.append({
             "ctime":item.ctime,
             "name":item.name,
