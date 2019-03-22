@@ -213,8 +213,10 @@ function gettip(e) {
                 window.localStorage.setItem("tips",JSON.stringify(result.tips));
                 for(let i in result.tips){
                     let item =result.tips[i];
-                    let taghtml = '<div '+'onClick="clicktip('+i+')"' +'class='+'"auto-item"'+'data-item="'+i+'">' +item.name+'<span class="auto-item-span">'+item.district+'</span></div>';
-                    html=html+taghtml
+                    if(item.location.lat){
+                        let taghtml = '<div '+'onClick="clicktip('+i+')"' +'class='+'"auto-item"'+'data-item="'+i+'">' +item.name+'<span class="auto-item-span">'+item.district+'</span></div>';
+                        html=html+taghtml
+                    }
                 }
                 tipinfo.html(html);
                 tipinfo.attr('item',tag_id)
@@ -227,8 +229,10 @@ function gettip(e) {
             html="";
             for(let i=0;i<result.results.length;i++){
                 let item =result.results[i];
-                    let taghtml = '<div '+'onClick="clicktip('+i+')"' +'class='+'"auto-item"'+'data-item="'+i+'">' +item.name+'<span class="auto-item-span">'+item.district+'</span></div>';
-                    html=html+taghtml
+                    if(item.location.lat){
+                        let taghtml = '<div '+'onClick="clicktip('+i+')"' +'class='+'"auto-item"'+'data-item="'+i+'">' +item.name+'<span class="auto-item-span">'+item.district+'</span></div>';
+                        html=html+taghtml
+                    }
             }
             tipinfo.html(html);
             tipinfo.attr('item',tag_id)
