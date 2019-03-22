@@ -36,18 +36,7 @@ ERROR={
 };
 // AMap.event.addListener(autoa, "select", selecta);//注册监听，当选中某条记录时会触发
 // AMap.event.addListener(autob, "select", selectb);
-function selectb(a) {
-    let location=a.poi.location;
-    let tag=$("#tipinputb");
-    tag.attr('origin',location.lng+","+location.lat);
-    autob.value=a.poi.district+a.poi.name
-}
-function selecta(a) {
-    let location=a.poi.location;
-    let tag=$("#tipinputa");
-    tag.attr('origin',location.lng+","+location.lat);
-    autoa.value=a.poi.district+a.poi.name
-}
+
 // 右键菜单
 let menu = new ContextMenu(map);
 function ContextMenu(map) {
@@ -185,94 +174,6 @@ function handleActiveClass(name) {
     $("#panel-bus").empty();
     $("#panel-walking").empty();
     $("#panel-driving").empty()
-}
-function toaddrname(lng,lat,flag) {
-    AMap.service(["AMap.PlaceSearch"], function() {
-    //构造地点查询类
-    let placeSearch = new AMap.PlaceSearch({
-        type: '',
-        pageSize: 5, // 单页显示结果条数
-        pageIndex: 1, // 页码
-        city: "", // 兴趣点城市
-        citylimit: false,  //是否强制限制在设置的城市内搜索
-        map: map, // 展现结果的地图实例
-        panel: "panel", // 结果列表将在此容器中进行展示。#}
-        autoFitView: false // 是否自动调整地图视野使绘制的 Marker点都处于视口的可见范围
-    });
-    let cpoint = [lng, lat]; //中心点坐标
-    placeSearch.searchNearBy('', cpoint, 200, function(status, result) {
-        if(status==='complete'){
-            console.log(result);
-            if(flag===0){
-                tag = $("#tipinputa");
-
-            }else{
-                tag = $("#tipinputb")
-            }
-            tag.attr('value',result.poiList.pois[0].address);
-            tag.attr('origin',result.poiList.pois[0].location.lng+","+result.poiList.pois[0].location.lat)
-
-        }else{
-            alert("无法识别定位点")
-        }
-    });
-    });
-}
-function exchange() {
-    // 交换位置
-    let a=$("#tipinputa");
-    let b=$("#tipinputb");
-    valueA=autoa.input.value;
-    valueB=autob.input.value;
-    autoa.input.value=valueB;
-    autob.input.value=valueA;
-    originA=a.attr('origin');
-    originB=b.attr('origin');
-    a.attr('origin',originB);
-    b.attr('origin',originA);
-}
-function savelocation() {
-    // 记录地点
-
-}
-function searchtip(e,flag) {
-    AMap.plugin('AMap.Autocomplete', function(){
-        let autoOptions = {
-            city: '全国'
-        };
-        let autoComplete= new AMap.Autocomplete(autoOptions);
-        autoComplete.search(e.value, function(status, result) {
-        results = JSON.stringify(result);
-        localStorage.results = results;
-        // to html
-        content="";
-        for(let i in result){
-            content+="<div class='auto-item'>南京1912街区<span class='auto-item-span'>江苏省南京市玄武区</span></div>"
-        }
-        console.log(content);
-        contain=$("#tipa");
-        contain.innerHTML="";
-        contain.innerHTML="<div><h1>12312321</h1></div>"
-
-    })
-    })
-}
-function sethistory(e,flag) {
-    tag=$(e);
-    if(tag.value===undefined || tag.value.length===0){
-        if(flag===0){
-            $(".historya").css("display","block")
-        }else{
-            $(".historyb").css("display","block")
-        }
-    }
-}
-function clearhistory(flag) {
-    if(flag===0){
-        $(".historya").css('display','none')
-    }else{
-        $(".historyb").css('display','none')
-    }
 }
 
 

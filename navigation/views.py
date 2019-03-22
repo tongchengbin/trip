@@ -23,13 +23,14 @@ def gethistory(request,*args,**kwargs):
     :return: 最后十条记录
     '''
     
-    queryset = history.objects.all().order_by('-ctime')[:10]
+    queryset = history.objects.raw('''select * from navigation_history ORDER BY ctime desc limit 10''')
     results=[]
     for item in queryset:
+        print(item.district)
         results.append({
             "ctime":item.ctime,
             "name":item.name,
-            "district":item.address,
+            "district":item.district,
             "location":{"lng": item.lng,
                         "lat": item.lat
                         },
