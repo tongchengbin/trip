@@ -11,6 +11,7 @@ from django.conf import settings
 ak="GzVtCw9asuvgprsG0i2Ip4xuC4RDogpq"
 # Create your views here.
 import requests
+from django.utils import timezone
 def index(request,*args,**kwargs):
     '''百度地图'''
     return render(request, "index.html")
@@ -23,7 +24,7 @@ def gethistory(request,*args,**kwargs):
     :return: 最后十条记录
     '''
     
-    queryset = history.objects.raw('''select * from navigation_history ORDER BY ctime desc limit 10''')
+    queryset = history.objects.raw('''select * from navigation_history ORDER BY id desc limit 10''')
     results=[]
     for item in queryset:
         results.append({
@@ -209,9 +210,10 @@ def addhistory(request,*args,**kwargs):
         return JsonResponse({})
     has=history.objects.filter(address=data['address'])
     if has:
-        has.update(ctime=datetime.now())
+        has.delete()
     else:
         history.objects.create(
+            ctime=timezone.now(),
             address=data['address'],
             name=data['name'],
             lng=data['location']['lng'],
