@@ -133,11 +133,12 @@ def getTrainList(request,*args,**kwargs):
 
 def flight(request,*args,**kwargs):
     '''飞机票查询'''
-    source = request.GET.get("start", "武汉")
-    des = request.GET.get("end", "北京")
+    source = request.GET.get("start")
+    des = request.GET.get("end")
     # 地址解析
     start = geocoder(source)
     end = geocoder(des)
+    print(start,end)
     date=request.GET.get('date',datetime.today().strftime("%Y-%m-%d"))
     url = "https://m.flight.qunar.com/flight/api/touchInnerList"
     data = {"arrCity": end, "baby": "0",

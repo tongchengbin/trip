@@ -196,6 +196,7 @@ tipinfo=$(".tip-info");
 
 function gettip(e) {
     tag_id=$(e).attr('id');
+    window.localStorage.removeItem(tag_id);
     keywords = document.getElementById(tag_id).value;
     if(keywords.length>0){
         AMap.plugin('AMap.Autocomplete', function(){
