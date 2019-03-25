@@ -72,6 +72,7 @@ def transit(request,*args,**kwargs):
         url=bus
     response= requests.get(url,params=params)
     data=response.json()
+    pprint(data)
     if data['status']!=0:
         return JsonResponse(data)
     return JsonResponse(data)
@@ -94,24 +95,27 @@ def getTrainList(request,*args,**kwargs):
     #地址解析
     start=geocoder(source)
     end=geocoder(des)
-    
     day=request.GET.get('day',None)
     station_file=os.path.join(settings.BASE_DIR,"static/station_code.json")
     stations=json.load(open(station_file,'r',encoding='utf-8'))
     start=stations.get(start)
     end= stations.get(end)
+    if not start or not end:
+        return HttpResponse("无法解析地址")
     if not day:
         day=datetime.today().strftime("%Y-%m-%d")
     train_url = "https://kyfw.12306.cn/otn/leftTicket/query?leftTicketDTO.train_date={day}&leftTicketDTO.from_station={start}&leftTicketDTO.to_station={end}&purpose_codes=ADULT".format(day=day,start=start,end=end)
     res=requests.get(train_url)
     if res.status_code==200:
         data=res.json()['data']
+        pprint(data)
         citydata = data['map']
         lis=data['result']
         result=[]
         for item in lis:
             temp=item.split("|")
             result.append({
+                "car_id":temp[2],
                 "car_no":temp[3],
                 "start":citydata[temp[6]],
                 "end":citydata[temp[7]],
@@ -125,6 +129,9 @@ def getTrainList(request,*args,**kwargs):
                 "rw":temp[23],#软卧
                 "yw":temp[19],#硬卧
                 "status":temp[29] or "无",
+                "from_station_no":temp[16],
+                "to_station_no":temp[17],
+                "seat_types":temp[-4]
             })
         if not result:
             return HttpResponse("没有合适的高铁票")
@@ -221,3 +228,35 @@ def addhistory(request,*args,**kwargs):
             district=data['district']
         )
     return JsonResponse({})
+
+
+
+def getprice(request,*args,**kwargs):
+    try:
+        data=json.loads(request.body)
+    except:
+        return JsonResponse({})
+    url="https://kyfw.12306.cn/otn/leftTicket/queryTicketPrice"
+    train_date=datetime.strptime(data['date'],"%Y%m%d").strftime("%Y-%m-%d")
+    params={"train_no":data['train_no'],
+            "from_station_no":data['from_station_no'],
+            "to_station_no":data['to_station_no'],
+            "seat_types":data['seat_types'],
+            "train_date":train_date}
+    resp=requests.get(url,params=params)
+    if resp.status_code==200:
+        data=resp.json()
+        try:
+            data=data['data']
+        except:
+            print(data)
+            data={}
+        data['edz']=data.get("O","")
+        data['swz']=data.get("A9",'')
+        data['ydz']=data.get("M",'')
+        data['WZ']=data.get('edz','')
+        data['yw']=data.get('A3','')
+        data['rw']=data.get('A4','')
+        return JsonResponse(data)
+    else:
+        return HttpResponse("无法获取价格")

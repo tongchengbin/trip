@@ -17,6 +17,7 @@
           background-color: #ffffff;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 </head>
 <body>
 <table>
@@ -34,7 +35,7 @@
     <td>软卧</td>
     <td>硬卧</td>
     <td>状态</td>
-
+    <td>票价</td>
     {% for item in result %}
     <tr>
         <td>{{ item.car_no }}</td>
@@ -50,13 +51,55 @@
         <td>{{ item.rw }}</td>
         <td>{{ item.yw }}</td>
         <td>{{ item.status }}</td>
+        <td><button onclick="getprice(this)"
+                    car_id="{{ item.car_id }}"
+                    date="{{ item.departure_date }}"
+                    from_station_no="{{ item.from_station_no }}"
+                    to_station_no="{{ item.to_station_no }}"
+                    seat_types="{{ item.seat_types }}">
+            查看票价
+        </button></td>
     </tr>
     {% endfor%}
     </tbody>
-
 </table>
-
-
-
 </body>
+<script type="text/javascript">
+    function getprice(e) {
+        let data={
+            "train_no":e.getAttribute("car_id"),
+            "date":e.getAttribute("date"),
+            "from_station_no":e.getAttribute("from_station_no"),
+            "to_station_no":e.getAttribute("to_station_no"),
+            "seat_types":e.getAttribute("seat_types")
+        };
+        $.ajax({
+            url:'/trip/getprice/',
+            data:JSON.stringify(data),
+            type:"POST",
+            contentType:"application/json",
+            success:function (res) {
+                let tr=e.parentNode.parentNode;
+                let priceTag="<tr>" +
+                    "<td></td>" +
+                    "<td></td>" +
+                    "<td></td>" +
+                    "<td></td>" +
+                    "<td></td>" +
+                    "<td></td>" +
+                    "<td></td>" +
+                    "<td>" +res.swz+"</td>" +
+                    "<td>" +res.ydz+"</td>" +
+                    "<td>" +res.edz+"</td>" +
+                    "<td>" +res.rw+"</td>" +
+                    "<td>" +res.yw+"</td>" +
+                    "<td></td>" +
+                    "<td></td>" +
+                    "</tr>";
+                console.log(priceTag);
+                $(tr).after(priceTag);
+            }
+        });
+    }
+</script>
 </html>

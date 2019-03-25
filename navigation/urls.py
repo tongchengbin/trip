@@ -23,6 +23,6 @@ urlpatterns = [
     path('addhistory/',views.addhistory),
     path('gethistory/',views.gethistory),
     path('train/',views.getTrainList),
-    path('flight/',views.flight)
-
+    path('flight/',views.flight),
+    path('getprice/',views.getprice)
 ]
