@@ -80,7 +80,8 @@
             contentType:"application/json",
             success:function (res) {
                 let tr=e.parentNode.parentNode;
-                let priceTag="<tr>" +
+                $(".price").remove();
+                let priceTag="<tr class='price'>" +
                     "<td></td>" +
                     "<td></td>" +
                     "<td></td>" +

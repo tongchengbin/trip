@@ -10522,4 +10522,10 @@ my
 .plan-nobus{
     overflow-y: auto;
     max-height: 600px;
+
+}
+
+.plan{
+    overflow-y: auto;
+    max-height: 600px;
 }
