@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-
+from navigation.views import gd
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("trip/",include("navigation.urls"))
+    path("trip/",include("navigation.urls")),
+    path("",gd)
 ]

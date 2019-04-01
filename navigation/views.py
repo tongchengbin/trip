@@ -14,7 +14,7 @@ import requests
 from django.utils import timezone
 def index(request,*args,**kwargs):
     '''百度地图'''
-    return render(request, "index.html")
+    return render(request, "bd.bak.html")
 def gethistory(request,*args,**kwargs):
     '''
         获取搜索历史
@@ -80,7 +80,7 @@ def transit(request,*args,**kwargs):
 
 def gd(request,*args,**kwargs):
     '''高德地图'''
-    return render(request,"gd.html")
+    return render(request, "index.html")
 
 def getTrainList(request,*args,**kwargs):
     '''

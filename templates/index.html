@@ -1,25 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <style type="text/css">body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}</style>
-    <link rel="stylesheet" type="text/css" href="/static/css/index.css" />
-    <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&amp;ak=GzVtCw9asuvgprsG0i2Ip4xuC4RDogpq"></script>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-  </head>
-  <body>
-    <div id="allmap"></div>
-                <div id="panel"></div>
-    <div id="left-panel" class="left-panel">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>地图显示</title>
+    <style>
+        html,
+        body,
+        #container {
+          width: 100%;
+          height: 100%;
+        }
+         .panel {
+            position: fixed;
+            top: 10px;
+             right: 1rem;
+             width: 300px;
+             z-index: 999;
+            }
+        ul.tabs.dir_tab {
+    width: 200px;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    height: 30px;
+    margin: 0 auto;
+    white-space: nowrap;
+}
+        ol, ul {
+               list-style: none;
+        }
+        .tab-item{
+            display: inline;
+            padding: 5px;
+        }
+        .bus-tab > i {
+            display: inline-block;
+            position: relative;
+            top: 2px;
+            width: 13px;
+            height: 15px;
+            background-image: url(https://map.baidu.com//webmap1.bdimg.com/wolfman/static/common/images/new/route-icon_2c25ce2.png);
+            background-repeat: no-repeat;
+        }
+
+        .route-info .active{
+            background-color: #fff;
+        }
+
+        .tip .auto-item{
+            padding-left: 25px;
+        }
+        .tip-info{
+            position: absolute;
+                background-color: #fff;
+            left: 59px;
+            top: 137px;
+            width: 289px;
+        }
+    </style>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/css/index.css">
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+<div class="panel">
+    <div id="panel-bus"></div>
+    <div id="panel-walking"></div>
+    <div id="panel-bike"></div>
+    <div id="panel-driving">
+    </div>
+</div>
+<div id="container"></div>
+<div id="left-panel" class="left-panel">
         <div id="searchbox" class="clearfix">
         <div id="searchbox-container">
           <div id="sole-searchbox-content" class="searchbox-content" style="display: none;">
-            <input id="sole-input" class="searchbox-content-common" type="text" name="word" autocomplete="off" maxlength="256" placeholder="搜地点、查公交、找路线" value="" />
-            <div class="input-clear" title="清空" style="display: none;"></div>
+            <input id="sole-input" class="searchbox-content-common" type="text" name="word" autocomplete="off" maxlength="256" placeholder="搜地点、查公交、找路线" value="">
+            <div class="input-clear" onclick="inputClear('tipa')" title="清空" style="display: none;"></div>
             <div class="searchbox-content-button right-button route-button loading-button" data-title="路线" data-tooltip="1"></div>
           </div>
-          <div id="route-searchbox-content" class="searchbox-content route-searchbox-content bus">
+          <div id="route-searchbox-content" class="searchbox-content route-searchbox-content bike">
             <div class="route-header">
               <div class="searchbox-content-common route-tabs">
                 <div class="tab-item bus-tab" data-index="bus">
@@ -50,42 +112,37 @@
                 <div class="routebox-inputs">
                   <div class="routebox-input route-start">
                     <div class="route-input-icon"></div>
-                    <input id="tipa" onclick="test(this)" maxlength="256" placeholder="输入起点或在图区上选点" class="route-start-input" type="text" value=""/>
-                    <div class="input-clear" title="清空" style="display: block;"></div>
-                    <div class="route-input-add-icon"></div>
+                    <input id="tipa" maxlength="256" placeholder="输入起点或在图区上选点" class="route-start-input" type="text" autocomplete="off" oninput="gettip(this)" onclick="gettip(this)">
+                    <div class="input-clear" onclick="inputClear('tipa')" title="清空" style="display: block;"></div>
                   </div>
                   <div class="routebox-input route-end">
                     <div class="route-input-icon"></div>
-                    <input id="tipb" onfocus="arriveInput()" onblur="outInput()" maxlength="256" placeholder="输入终点或在图区上选点" class="route-end-input" type="text" value="" />
-                    <div class="input-clear" title="清空" style="display: block;"></div>
+                    <input id="tipb" maxlength="256" placeholder="输入终点或在图区上选点" class="route-end-input" type="text"  oninput="gettip(this)" onclick="gettip(this)" autocomplete="off">
+                    <div class="input-clear" onclick="inputClear('tipb')" title="清空" style="display: block;"></div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <button id="search-button" data-title="搜索" data-tooltip="2">
+        <button id="search-button" data-title="搜索" data-tooltip="2" route-type="bike">
         </button>
       </div>
         <ul id="cards-level1" class="cardlist"></ul>
     </div>
-    <div class="tipinfo"></div>
-    <div id="searchResultPanel"></div>
-    <div id="historya" class="tipinfo"></div>
-    <div id="historyb" class="tipinfo"></div>
-    <div class="bt-info">
-        <div><a id="gotrain">高铁票</a><a id="flight">飞机票</a></div>
+<div class="tip-info">
+</div>
+<div class="bt-info">
+    <div>
+        <a id="gotrain">火车票</a>
+        <a id="flight">飞机票</a>
     </div>
-    <div class="tipinfo"></div>
-  </body>
-  <script src="/static/js/index.js" type="text/javascript"></script>
-<script type="text/javascript">
-    function arriveInput() {
-        $("#cards-level1").addClass('clear')
-    }
-    function outInput() {
-        $("#cards-level1").removeClass('clear');
-        console.log("remove")
-    }
-</script>
+</div>
+<!-- 加载地图JSAPI脚本 -->
+  <script type="text/javascript" src="https://a.amap.com/jsapi_demos/static/demo-center/js/underscore-min.js" ></script>
+  <script type="text/javascript" src="https://a.amap.com/jsapi_demos/static/demo-center/js/backbone-min.js" ></script>
+  <script type="text/javascript" src='https://a.amap.com/jsapi_demos/static/demo-center/js/prety-json.js'></script>
+<script src="https://webapi.amap.com/maps?v=1.4.13&key=18999e74b2f733e2119b2889826612cd&plugin=AMap.Autocomplete,AMap.Transfer,AMap.Riding,AMap.Walking,AMap.Driving,AMap.MouseTool"></script>
+<script src="/static/js/index.js" type="text/javascript"></script>
+</body>
 </html>

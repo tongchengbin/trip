@@ -1,413 +1,332 @@
-// 百度地图API功能
-function G(id) {
-    return document.getElementById(id);
-}
-// 百度地图API功能
-let map = new BMap.Map("allmap"); // 创建Map实例
-map.centerAndZoom(new BMap.Point(116.404, 39.915), 11); // 初始化地图,设置中心点坐标和地图级别
-// //添加地图类型控件
-map.addControl(new BMap.MapTypeControl({
-    mapTypes: [BMAP_NORMAL_MAP, BMAP_HYBRID_MAP]
-}));
-renderOptions={map: map,panel : "panel",autoViewport:true};
-myGeo = new BMap.Geocoder();
-
-driving = new BMap.DrivingRoute(map, {renderOptions: renderOptions,onSearchComplete:onSearchComplete});
-walk = new BMap.WalkingRoute(map, {renderOptions: renderOptions});
-riding = new BMap.RidingRoute(map, {renderOptions: renderOptions});
-transit = new BMap.TransitRoute(map, {renderOptions: renderOptions});
-// 自动定位
-let geolocation = new BMap.Geolocation();
-geolocation.getCurrentPosition(function(r){
-    if(r.point.lng){
-        let mk = new BMap.Marker(r.point);
-        map.addOverlay(mk);
-        map.panTo(r.point);
-    }else{
-        console.log("无法定位")
-    }
-
-},{enableHighAccuracy: true});
-
-function onSearchComplete(res) {
-    console.log(res.getNumPlans(),"方案个数");
-    console.log(res,"onSearchComplete")
-}
-// 右键
-let menu = new BMap.ContextMenu();
-let txtMenuItem = [{
-    text: '设置为出发点',
-    callback: menuAddStartAddr
-},
-{
-    text: '设置为结束点',
-    callback: menuAddEndAddr
-}];
-for (let i = 0; i < txtMenuItem.length; i++) {
-    menu.addItem(new BMap.MenuItem(txtMenuItem[i].text, txtMenuItem[i].callback, 100));
-}
-map.addContextMenu(menu);
-
-//
-function menuAddStartAddr(e) {
-    let point = new BMap.Point(e.lng, e.lat);
-    //检测标记点
-    let len = map.getOverlays().length
-    for (let i = len; i > 0; i--) {
-        if (map.getOverlays()[i] && map.getOverlays()[i].z.title === 'start') {
-            map.removeOverlay(map.getOverlays()[i]);
-        }
-    }
-    let marker = new BMap.Marker(point, {
-        "title": "start",
-        "label": "起始点"
-    }); // 创建点
-    map.addOverlay(marker); //增加点
-    let geoc = new BMap.Geocoder();
-    geoc.getLocation(point,
-    function(rs) {
-        ac.setInputValue(rs.address)
-    })
-}
-function menuAddEndAddr(e) {
-    // let point = new BMap.Point(e.lng, e.lat);
-    // let marker = new BMap.Marker(point); // 创建点
-    // //检测标记点
-    // let len = map.getOverlays().length;
-    // for (let i = len; i > 0; i--) {
-    //     if (map.getOverlays()[i] && map.getOverlays()[i].z.title === 'end') {
-    //         map.removeOverlay(map.getOverlays()[i]);
-    //     }
-    // }
-    // map.addOverlay(marker, {
-    //     "title": "end",
-    //     "label": "结束点"
-    // }); //增加点
-    // let geoc = new BMap.Geocoder();
-    // geoc.getLocation(point,
-    // function(rs) {
-    //     ec.setInputValue(rs.address)
-    // })
-}
-
-// let ac = new BMap.Autocomplete( //建立一个自动完成的对象
-// {
-//     "input": "tipa",
-//     "location": map
-// });
-// let ec = new BMap.Autocomplete( //建立一个自动完成的对象
-// {
-//     "input": "tipb",
-//     "location": map
-// });
-// 鼠标放在下拉列表上的事件
-// ac.addEventListener("onhighlight", function(e) {
-// 	let str = "";
-// 	let _value = e.fromitem.value;
-// 	let value = "";
-// 	if (e.fromitem.index > -1) {
-// 		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-// 	}
-// 	str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
-// 	value = "";
-// 	if (e.toitem.index > -1) {
-// 		_value = e.toitem.value;
-// 		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-// 	}
-// 	str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
-// 	G("searchResultPanel").innerHTML = str;
-// });
-// ec.addEventListener("onhighlight", function(e) {
-// 	let str = "";
-// 	let _value = e.fromitem.value;
-// 	let value = "";
-// 	if (e.fromitem.index > -1) {
-// 		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-// 	}
-// 	str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
-// 	value = "";
-// 	if (e.toitem.index > -1) {
-// 		_value = e.toitem.value;
-// 		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
-// 	}
-// 	str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
-// 	G("searchResultPanel").innerHTML = str;
-// });
-// ac.addEventListener("onconfirm", function(e) {
-//     //鼠标点击下拉列表后的事件
-//     let _value = e.item.value;
-//     myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
-//     window.localStorage.setItem("form",_value.city);
-//     setPlace();
-//     myGeo.getPoint(myValue, function (res) {
-//         inputa.attr("lat",res.lat);
-//         inputa.attr('lng',res.lng);
-//         myGeo.getLocation(new BMap.Point(res.lng, res.lat),function (result) {
-//             inputa.attr('value',result.address)
-//         })
-//         // $("#tipa").attr("origin",res.lat+","+res.lng)
-//     });
-// });
-// ec.addEventListener("onconfirm",function(e) { //鼠标点击下拉列表后的事件
-//     let _value = e.item.value;
-//     myValue = _value.province + _value.city + _value.district + _value.street + _value.business;
-//     window.localStorage.setItem("go",_value.city);
-//     setPlace();
-//     myGeo.getPoint(myValue, function (res) {
-//         inputb.attr("lat",res.lat);
-//         inputb.attr("lng",res.lng);
-//         myGeo.getLocation(new BMap.Point(res.lng, res.lat),function (result) {
-//             inputb.attr('value',result.address)
-//         })
-//         // $("#end-addr").attr("destination",res.lat+","+res.lng)
-//     });
-// });
-
-
-
-let myValue = "";
-
-
-
-// 点击事件
-$("#search-button").click(function( e ) {
-    let routeType=$("#search-button").attr('route-type');
-    // sy = new BMap.Symbol(BMap_Symbol_SHAPE_BACKWARD_OPEN_ARROW, {
-    //     scale: 0.6,//图标缩放大小
-    //     strokeColor:'#fff',//设置矢量图标的线填充颜色
-    //     strokeWeight: '2',//设置线宽
-    // });
-    // icons = new BMap.IconSequence(sy, '10', '30');
-    //
-    // $.get("/trip/transit/",{"type":routeType},function (res) {
-    //    if(res.status!==0){
-    //        alert(res.message)
-    //    }else{
-    //        let points=[];
-    //        for(i in res.result.routes[0].steps){
-    //            let point = res.result.routes[0].steps[i].end_location;
-    //            points.push(new BMap.Point(point.lng,point.lat));
-    //            map.centerAndZoom(new BMap.Point(point.lng,point.lat), 15)
-    //        }
-    //        let polyline =new BMap.Polyline(points, {
-    //                enableEditing: false,//是否启用线编辑，默认为false
-    //                enableClicking: true,//是否响应点击事件，默认为true
-    //                icons:[icons],
-    //                strokeWeight:'8',//折线的宽度，以像素为单位
-    //                strokeOpacity: 0.8,//折线的透明度，取值范围0 - 1
-    //                strokeColor:"#18a45b" //折线颜色
-    //             });
-    //        map.addOverlay(polyline);          //增加折线
-    //
-    //    }
-    // });
-    if(routeType==='bike'){
-        $(".bike-tab").click();
-    }else if(routeType==='drive'){
-        $(".drive-tab").click()
-    }else if(routeType==='walk'){
-        $(".walk-tab").click()
-    }else{
-        $(".bus-tab").click()
-    }
-    // RutePlanning()
+/**
+ * Created by Administrator on 2019/3/21.
+ */
+// 初始化地图路
+let map = new AMap.Map('container', {
+    resizeEnable: true, //是否监控地图容器尺寸变化
+    zoom:14, //初始化地图层级
 });
 
+
+// 地址提示信息展示
+tipinfo=$(".tip-info");
+// API状态码
+ERROR={
+    "OK":"请求正常",
+    "INVALID_USER_KEY":"key不正确或过期",
+    "SERVICE_NOT_AVAILABLE":"服务不可用",
+    "INVALID_USER_DOMAIN":"INVALID_USER_DOMAIN",
+    "USERKEY_PLAT_NOMATCH":"USERKEY_PLAT_NOMATCH",
+    "NOT_SUPPORT_HTTPS":"服务不支持https请求",
+    "INSUFFICIENT_PRIVILEGES":"权限不足，服务请求被拒绝",
+    "USER_KEY_RECYCLED":"Key被删除",
+    "INVALID_PARAMS":"请求参数非法",
+    "MISSING_REQUIRED_PARAMS":"缺少必填参数",
+    "UNKNOWN_ERROR":"其他未知错误",
+    "OUT_OF_SERVICE":"规划点（包括起点、终点、途经点）不在中国陆地范围内",
+    "NO_ROADS_NEARBY":"划点（起点、终点、途经点）附近搜不到路",
+    "ROUTE_FAIL":"路线计算失败，通常是由于道路连通关系导致",
+    "OVER_DIRECTION_RANGE":"起点终点距离过长。",
+    "ENGINE_RESPONSE_DATA_ERROR":"服务响应失败。"
+};
+// 右键菜单
+let menu = new ContextMenu(map);
+function ContextMenu(map) {
+    let me = this;
+    //地图中添加鼠标工具MouseTool插件
+    this.mouseTool = new AMap.MouseTool(map);
+
+    this.contextMenuPositon = null;
+    let content = [];
+    content.push("<div class='info context_menu'>");
+    content.push("<p onclick='menu.menuadd(0)'>选择为起点</p>");
+    content.push("<p onclick='menu.menuadd(1)'>选择为终点</p>");
+    content.push("</div>");
+     //通过content自定义右键菜单内容
+    this.contextMenu = new AMap.ContextMenu({isCustom: true, content: content.join('')});
+    //地图绑定鼠标右击事件——弹出右键菜单
+    map.on('rightclick', function (e) {
+        me.contextMenu.open(map, e.lnglat);
+        me.contextMenuPositon = e.lnglat; //右键菜单位置
+    });
+    ContextMenu.prototype.menuadd = function (tag) {
+        this.mouseTool.close();
+        if(tag===0){
+            inputTagid='tipa'
+        }else{
+            inputTagid='tipb'
+        }
+        input_tag=document.getElementById(inputTagid);
+        lnglat = [this.contextMenuPositon.lng, this.contextMenuPositon.lat];
+        window.localStorage.setItem(inputTagid,this.contextMenuPositon.lng+","+this.contextMenuPositon.lat);
+        AMap.plugin('AMap.Geocoder', function() {
+            let geocoder = new AMap.Geocoder({
+                city: '全国'
+            });
+            geocoder.getAddress(lnglat, function(status, result) {
+            if (status === 'complete' && result.info === 'OK') {
+                // result为对应的地理位置详细信息
+                input_tag.value=result.regeocode.formattedAddress;
+                console.log(result);
+                // 添加紀錄
+                let data={"address":result.regeocode.formattedAddress,"name":result.regeocode.formattedAddress,
+                    "district":result.regeocode.addressComponent.district,
+                    "location":{"lng":lnglat[0],"lat":lnglat[1]}};
+                $.ajax({
+                    url:'/trip/addhistory/',
+                    data:JSON.stringify(data),
+                    type:"POST",
+                    contentType:"application/json",
+                    success:function (res) {
+                    console.log(res)
+                    }
+                    });
+            }
+        });
+        });
+        this.contextMenu.close();
+    };
+}
+// 公交导航
+function bus() {
+    handleActiveClass('bus');
+    let a=window.localStorage.getItem("tipa");
+    let b =window.localStorage.getItem("tipb");
+     if(!a || !b){
+         alert("请选择地点")
+     }
+     city=null;
+     cityd=null;
+     AMap.plugin('AMap.Geocoder', function() {
+            let geocoder = new AMap.Geocoder({
+                city: '全国'
+            });
+            let lnglata=a.split(",");
+            let lnglatb=b.split(",");
+            geocoder.getAddress(lnglata, function(status, result) {
+                console.log(result,"dsfsdfdsf");
+            if (status === 'complete' && result.info === 'OK') {
+                city=result.regeocode.addressComponent.city || result.regeocode.addressComponent.province ;
+                geocoder.getAddress(lnglatb, function(status, result) {
+                  cityd= result.regeocode.addressComponent.city || result.regeocode.addressComponent.province ;
+                  let transOptions = {
+                      map: map,
+                      city:city,
+                      cityd:cityd,
+                      panel: 'panel-bus',
+                      policy: AMap.TransferPolicy.LEAST_TIME
+                  };
+                  let transfer = new AMap.Transfer(transOptions);
+                  transfer.search(new AMap.LngLat(a.split(",")[0],a.split(",")[1]), new AMap.LngLat(b.split(",")[0],b.split(",")[1]), searchResult)
+                })
+            }
+        });
+        });
+
+}
+// 驾车导航
+function driving() {
+    // 驾车导航
+    handleActiveClass('driving');
+     let transfer = new AMap.Driving({
+         map: map,
+         panel: "panel-driving"
+     });
+     let origin=window.localStorage.getItem("tipa");
+    let des =window.localStorage.getItem("tipb");
+     if(!origin || !des){
+         return
+     }
+     transfer.search(new AMap.LngLat(origin.split(",")[0],origin.split(",")[1]), new AMap.LngLat(des.split(",")[0],des.split(",")[1]),searchResult)
+}
+
+// 步行导航
+function walking() {
+    //步行导航
+    handleActiveClass('walking');
+    let walking = new AMap.Walking({
+        map: map,
+        panel: "panel-walking"
+    });
+    let origin=window.localStorage.getItem("tipa");
+    let des =window.localStorage.getItem("tipb");
+     if(!origin || !des){
+         return
+     }
+    // 根据起终点坐标规划步行路线
+    walking.search([origin.split(",")[0],origin.split(",")[1]], [des.split(",")[0],des.split(",")[1]], searchResult);
+}
+
+// 骑行导航
+function bike() {
+    //骑行导航
+    handleActiveClass('bike');
+    let riding = new AMap.Riding({
+        map: map,
+        panel: "panel-bike"
+    });
+    let origin=window.localStorage.getItem("tipa");
+    let des =window.localStorage.getItem("tipb");
+     if(!origin || !des){
+         return
+     }
+    //根据起终点坐标规划骑行路线
+    riding.search([origin.split(",")[0],origin.split(",")[1]],[des.split(",")[0],des.split(",")[1]],searchResult)
+}
+
+// 点击导航时样式变化
+function handleActiveClass(name) {
+    $('#walking').removeClass("active");
+    $('#bike').removeClass("active");
+    $('#driving').removeClass("active");
+    $("#bus").removeClass("active");
+    let temp=$("#"+name);
+    temp.addClass("active");
+    $("#go").attr('route',name);
+
+    $("#panel-bike").empty();
+    $("#panel-bus").empty();
+    $("#panel-walking").empty();
+    $("#panel-driving").empty()
+}
+
+
+/*
+    点击输入框或者输入框变化时 调取接口 获取提示内容
+    如果输入框没有内容,去服务器获取最近的10条记录
+*/
+
+function gettip(e) {
+    tag_id=$(e).attr('id');
+    window.localStorage.removeItem(tag_id);
+    keywords = document.getElementById(tag_id).value;
+    if(keywords.length>0){
+        // 高德 地址搜索组件
+        AMap.plugin('AMap.Autocomplete', function(){
+        // 实例化Autocomplete
+        let autoOptions = {
+          city: '全国'
+        };
+        let autoComplete = new AMap.Autocomplete(autoOptions);
+        tipinfo.empty();
+        autoComplete.search(keywords, function(status, result) {
+          // 搜索成功时，result即是对应的匹配数据
+            html="";
+            console.log(result.info==="OK");
+            if(result.info==="OK"){
+                window.localStorage.setItem("tips",JSON.stringify(result.tips));
+                for(let i in result.tips){
+                    let item =result.tips[i];
+                    if(item.location.lat){
+                        let taghtml = '<div '+'onClick="clicktip('+i+')"' +'class='+'"auto-item"'+'data-item="'+i+'">' +item.name+'<span class="auto-item-span">'+item.district+'</span></div>';
+                        html=html+taghtml
+                    }
+                }
+                tipinfo.html(html);
+                tipinfo.attr('item',tag_id)
+            }
+        })
+      })
+    }else{
+        // 获取服务器记录
+        $.get('/trip/gethistory',function (result) {
+            window.localStorage.setItem('tips',JSON.stringify(result.results));
+            html="";
+            for(let i=0;i<result.results.length;i++){
+                let item =result.results[i];
+                    if(item.location.lat){
+                        let taghtml = '<div '+'onClick="clicktip('+i+')"' +'class='+'"auto-item"'+'data-item="'+i+'">' +item.name+'<span class="auto-item-span">'+item.district+'</span></div>';
+                        html=html+taghtml
+                    }
+            }
+            tipinfo.html(html);
+            tipinfo.attr('item',tag_id)
+
+        })
+    }
+}
+// 点击地址时 上传地点到后台，同时存储地点到localStrong 好处是格式易于解析
+function clicktip(index) {
+    target_id=tipinfo.attr('item');
+    console.log(JSON.parse(window.localStorage.getItem('tips')));
+    data = JSON.parse(window.localStorage.getItem('tips'))[index];
+    $.ajax({
+            url:'/trip/addhistory/',
+            data:JSON.stringify(data),
+            type:"POST",
+            contentType:"application/json",
+            success:function (res) {
+                console.log(res)
+            }
+        });
+    document.getElementById(target_id).value=data.name;
+    window.localStorage.setItem(target_id,data.location.lng+","+data.location.lat);
+    $(tipinfo).empty()
+
+}
+
+
+// 点击搜索,调用对应的导航事件
+$("#search-button").click(function( e ) {
+    // 添加记录
+    map.clearMap();
+    let a=window.localStorage.getItem("tipa");
+    let b =window.localStorage.getItem("tipb");
+    if(!a||!b){
+        alert("请选择地址");
+        return
+    }
+    let routeType=$("#search-button").attr('route-type');
+    if(routeType==='bike'){
+        bike()
+    }else if(routeType==='drive'){
+        driving()
+    }else if(routeType==='walk'){
+        walking()
+    }else{
+        bus()
+    }
+});
+
+// 直接点击公交-> 调用对应导航
 $(".bus-tab").click(function() {
     let searchBtn=$("#route-searchbox-content");
     searchBtn.removeClass("bus drive walk bike");
     searchBtn.addClass("bus");
     $("#search-button").attr("route-type",'bus');
-        // RoutePlanning()
-
-    let l=getpoint();
-    if(l.start&&l.end){
-        map.clearOverlays();
-        transit.search(l.start, l.end);
-    }
-
 });
 
+// 直接点击驾车-> 调用对应导航
 $(".drive-tab").click(function() {
     let searchBtn=$("#route-searchbox-content");
     searchBtn.removeClass("bus drive walk bike");
     searchBtn.addClass("drive");
-    $("#search-button").attr("route-type",'drive');
-    //     RoutePlanning()
-    let l=getpoint();
-    if(l.start&&l.end){
-        console.log(l.start,l.end,"驾车");
-        map.clearOverlays();
-        driving.search(l.start, l.end);
-    }
+    $("#search-button").attr("route-type",'drive')
 
 });
-
+// 直接点击步行-> 调用对应导航
 $(".walk-tab").click(function() {
     let searchBtn=$("#route-searchbox-content");
     searchBtn.removeClass("bus drive walk bike");
     searchBtn.addClass("walk");
     $("#search-button").attr("route-type",'walk');
-    let l=getpoint();
-    if(l.start && l.end){
-        map.clearOverlays();
-        console.log(l.start,l.end,"步行");
-        walk.search(l.start, l.end);
-    }
-});
 
+});
+// 直接点击骑行-> 调用对应导航
 $(".bike-tab").click(function() {
     let searchBtn=$("#route-searchbox-content");
     searchBtn.removeClass("bus drive walk bike");
     searchBtn.addClass("bike");
     $("#search-button").attr("route-type",'bike');
-
-    let l=getpoint();
-    if(l.start && l.end){
-        map.clearOverlays();
-        riding.search(l.start, l.end);
-    }
 });
 
 
 
-function setPlace()
-{
-    map.clearOverlays(); //清除地图上所有覆盖物
-    function myFun() {
-        let pp = local.getResults().getPoi(0).point; //获取第一个智能搜索的结果
-        map.centerAndZoom(pp, 18);
-        map.addOverlay(new BMap.Marker(pp)); //添加标注
-    }
-    let local = new BMap.LocalSearch(map, { //智能搜索
-        onSearchComplete: myFun
-    });
-    local.search(myValue);
-}
-
-
-function revertAddr() {
-    // 调换位置
-    tipaValue=document.getElementById("tipa").value;
-    tipbValue=document.getElementById("tipb").value;
-    document.getElementById("tipa").value=tipbValue;
-    document.getElementById("tipb").value=tipaValue;
-
-}
-
-
-//隐藏路径
-$('#cards-level1').on('click', '.navtrans-navlist-title', function(){
-    let bt=$(".navtrans-navlist-content");
-    let tip=$("#route_tips");
-    if(bt.hasClass('clear')){
-        bt.removeClass("clear");
-        tip.addClass('clear')
-    }else{
-        tip.removeClass("clear");
-        bt.addClass('clear')
-    }
-});
-
-//线路规划
-function RoutePlanning() {
-    let origin=$("#start-addr").attr('origin');
-    let destination = $("#end-addr").attr('destination');
-    let routeType=$("#search-button").attr("route-type");
-    if(!origin&&!destination){
-        alert("请选择出发地和目的地")
-    }
-    let data={
-        "origin":origin,
-        "destination":destination,
-        "type":routeType};
-    let url='http://127.0.0.1:8000/trip/transit/';
-    $.ajax({ url: url, data:data,dataType:'html', success: function(res){
-        document.getElementById('cards-level1').innerHTML=res;
-    }});
-}
-historya=$("#historya");
-historyb=$("#historyb");
-inputa=$("#tipa");
-inputb=$("#tipb");
-
-
-
-
-
-const ak='GzVtCw9asuvgprsG0i2Ip4xuC4RDogpq';
-
-function suggestiona(key) {
-    url="http://api.map.baidu.com/place/v2/suggestion?query="+key+"&region=北京&city_limit=false&output=json&ak="+ak+"&callback=showLocationa";
-    $.getScript(url)
-}
-
-function showLocationa(res) {
-    content="<ul>";
-    for(let i in res.result){
-            content+="<li style='width: 368px;'>" +
-                "<a><i>广12路</i><em>广州市</em></a>"+
-            "</li>"
-    }
-    content+="</ul>";
-    historya.html(content);
-}
-// suggestion();
-
-
-// 绑定输入框点击事件
-// inputa.click(function(e) {
-//     historya.css('display','block')
-// });
-// 内容变化
-// inputa.bind("input propertychange", function(e) {
-//     // 获取数据
-//     console.log(inputa.value);
-//     suggestiona(inputa.value)
-//
-//
-// });
-// inputa.blur(function () {
-//    historya.css('display','none')
-// });
-
-
-function getlocation() {
-    alat=inputa.attr('lat');
-    alng=inputa.attr('lng');
-    blat=inputb.attr('lat');
-    blng=inputb.attr('lng');
-    let start=myGeo.getLocation(new BMap.Point(alng, alat), function(result){
-        console.log(result.address);
-        return result.address;
-    });
-    let end=myGeo.getLocation(new BMap.Point(blng, blat), function(result){
-        return result.address;
-    });
-
-    return {"start":inputa.attr('value'),"end":inputb.attr('value')}
-}
-function getpoint() {
-    alat=inputa.attr('lat');
-    alng=inputa.attr('lng');
-    blat=inputb.attr('lat');
-    blng=inputb.attr('lng');
-    let start=new BMap.Point(alng,alat);
-    let end = new BMap.Point(blng,blat);
-    if(alat&&blat){
-        return {"start":start,"end":end}
-    }else{
-        return {"start":null,"end":null}
-    }
-
-
-}
-
-
-
+// 火车票查询
 $("#gotrain").click(function (e) {
-    let go = window.localStorage.getItem('go');
-    let form =window.localStorage.getItem('form');
+    console.log("火车票")
+    let go = window.localStorage.getItem('tipb');
+    let form =window.localStorage.getItem('tipa');
     if(!go||!form){
         alert("请选择出发地和目的地")
     }else{
@@ -415,9 +334,11 @@ $("#gotrain").click(function (e) {
         window.open(url)
     }
 });
+
+// 飞机票查询
 $("#flight").click(function (e) {
-    let go = window.localStorage.getItem('go');
-    let form =window.localStorage.getItem('form');
+    let go = window.localStorage.getItem('tipb');
+    let form =window.localStorage.getItem('tipa');
     if(!go||!form){
         alert("请选择出发地和目的地")
     }else{
@@ -425,3 +346,31 @@ $("#flight").click(function (e) {
         window.open(url)
     }
 });
+
+
+// 出发地和目的地调换
+function revertAddr() {
+    // 调换位置
+    tipaValue=document.getElementById("tipa").value;
+    tipbValue=document.getElementById("tipb").value;
+    document.getElementById("tipa").value=tipbValue;
+    document.getElementById("tipb").value=tipaValue;
+    itema=window.localStorage.getItem('tipa');
+    itemb=window.localStorage.getItem('tipb');
+    window.localStorage.setItem('tipa',itemb);
+    window.localStorage.setItem('tipb',itema)
+}
+
+// 输入框清除 同时清除localStrong 对应的数据
+function inputClear(tag_id) {
+    document.getElementById(tag_id).value=null;
+    window.localStorage.removeItem(tag_id)
+}
+
+//搜索回调 弹出状态
+function searchResult(status,result) {
+    console.log(status,result);
+    if(status!=="complete" && result){
+        alert(ERROR[result])
+    }
+}
