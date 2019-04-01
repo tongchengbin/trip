@@ -4,13 +4,14 @@ Python3.7+Django2.0.7+Linux/Win/Mac
 依赖:requirements.txt
 ### 部署Windows
 * 下载Pyhton3.7 url:https://www.python.org/ftp/python/3.7.2/python-3.7.2-amd64.exe
-* 下载代码 github:https://github.com/tongchengbin/trip.git
-* 切换至项目根目录 python manage.py runserver 0.0.0.0:8000 打开浏览器链接
+* 安装git https://git-scm.com/download/win
+* 使用git下载代码 git clone github:https://github.com/tongchengbin/trip.git
+* 切换至项目根目录 安装依赖pip install -r requirements
+* python manage.py runserver 0.0.0.0:8000
 
 
 
 ### 源码解读
-#### 后端
 ##### 目录解析
     navigation:导航应用
         views:接口函数
@@ -31,7 +32,7 @@ Python3.7+Django2.0.7+Linux/Win/Mac
         wsgi:服务器网关接口
     manage:项目的脚本文件，用于添加APP，启动，调试等
 
-###### 视图函数
+###### Views视图函数
     gd：
         主页接口，直接加载html文件
     addhistory: 
