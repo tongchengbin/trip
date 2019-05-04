@@ -95,7 +95,7 @@ def getTrainList(request,*args,**kwargs):
     #地址解析
     start=geocoder(source)
     end=geocoder(des)
-    day=request.GET.get('day',None)
+    day=request.GET.get('date',None)
     station_file=os.path.join(settings.BASE_DIR,"static/station_code.json")
     stations=json.load(open(station_file,'r',encoding='utf-8'))
     start=stations.get(start)
@@ -146,8 +146,9 @@ def flight(request,*args,**kwargs):
     # 地址解析
     start = geocoder(source)
     end = geocoder(des)
-    print(start,end)
-    date=request.GET.get('date',datetime.today().strftime("%Y-%m-%d"))
+    date=request.GET.get('date')
+    if not date:
+    		date=request.GET.get('date',datetime.today().strftime("%Y-%m-%d"))
     url = "https://m.flight.qunar.com/flight/api/touchInnerList"
     data = {"arrCity": end, "baby": "0",
             "cabinType": "0",
