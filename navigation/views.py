@@ -12,6 +12,36 @@ ak="GzVtCw9asuvgprsG0i2Ip4xuC4RDogpq"
 # Create your views here.
 import requests
 from django.utils import timezone
+
+def wbdflightlist(start, end, date):
+    '''
+        获取飞机票策略1
+        抓包地址:https://flight.qunar.com/site/oneway_list.html
+
+    '''
+    url = 'https://flight.qunar.com/touch/api/domestic/wbdflightlist'
+    params = {"departureCity": start, "arrivalCity": end, "departureDate": date, "ex_track": "",
+        "__m__": "a5ae1b541ae88b44d4eec8f8d47d39b9", "sort": 1, "_v": 3}
+    try:
+        res = requests.get(url, params=params)
+        return res.json()
+    except:
+        return False
+
+
+def touchInnerList(start, end, date):
+    '''获取飞机票策略2'''
+    url = "https://m.flight.qunar.com/flight/api/touchInnerList"
+    data = {"arrCity": end, "baby": "0", "cabinType": "0", "child": "0", "depCity": start, "from": "touch_index_search",
+            "goDate": date, "firstRequest": True, "startNum": 0, "sort": 5, "_v": 2, "underageOption": "", "more": 1,
+            "__m__": "29da7c7146186274c3b33c7dcef04133"}
+    try:
+        res = requests.post(url, json=data)
+        return res.json()
+    except:
+        return False
+
+
 def index(request,*args,**kwargs):
     '''百度地图'''
     return render(request, "bd.bak.html")
@@ -139,44 +169,49 @@ def getTrainList(request,*args,**kwargs):
 
     return render(request,'train.html',{"res":{}})
 
-def flight(request,*args,**kwargs):
+
+
+
+
+def flight(request, *args, **kwargs):
     '''飞机票查询'''
     source = request.GET.get("start")
     des = request.GET.get("end")
     # 地址解析
     start = geocoder(source)
     end = geocoder(des)
-    date=request.GET.get('date')
+    date = request.GET.get('date', datetime.today().strftime("%Y-%m-%d"))
+    data = wbdflightlist(start, end, date)
+    if data:
+        print("策略1获取成功")
+    else:
+        data = touchInnerList(start, end, date)
+        if data:
+            print("策略2获取成功")
+        else:
+            return HttpResponse("没有查询到合适的航班")
+    date = request.GET.get('date')
     if not date:
-    		date=request.GET.get('date',datetime.today().strftime("%Y-%m-%d"))
+        date = request.GET.get('date', datetime.today().strftime("%Y-%m-%d"))
     url = "https://m.flight.qunar.com/flight/api/touchInnerList"
-    data = {"arrCity": end, "baby": "0",
-            "cabinType": "0",
-            "child": "0",
-            "depCity": start,
-            "from": "touch_index_search",
-            "goDate": date,
-            "firstRequest": True,
-            "startNum": 0,
-            "sort": 5,
-            "_v": 2,
-            "underageOption": "",
-            "more": 1,
+    data = {"arrCity": end, "baby": "0", "cabinType": "0", "child": "0", "depCity": start, "from": "touch_index_search",
+            "goDate": date, "firstRequest": True, "startNum": 0, "sort": 5, "_v": 2, "underageOption": "", "more": 1,
             "__m__": "29da7c7146186274c3b33c7dcef04133"}
-    res=requests.post(url,json=data)
-    data=res.json()
-    items=[]
+    res = requests.post(url, json=data)
+    data = res.json()
+    items = []
     if data['ret']:
         try:
             for item in data['data']['flights']:
-                info=item['binfo']
-                info['price']=item['minPrice']
+                info = item['binfo']
+                info['price'] = item['minPrice']
                 items.append(info)
         except:
             pass
     if not items:
         return HttpResponse("没有查询到合适的航班")
-    return render(request,'flight.html',{"items":items})
+    return render(request, 'flight.html', {"items": items})
+
 
 def geocoder(origin,all=False):
     '''
