@@ -31,16 +31,13 @@
     <td>票价</td>
     {% for item in items %}
     <tr>
-        <td>
-            <img class="air-logo" src="{{ item.carrier }}" data-reactid=".1.2.3.2.0.$9C8542.0.0.0.0.0:$0.0.0">
-            {{ item.name }}
-        </td>
-        <td>{{ item.airCode }}</td>
-        <td>{{ item.planeFullType }}</td>
-        <td>{{ item.depAirport }}{{ item.depTerminal }}</td>
-        <td>{{ item.arrAirport }}{{ item.arrTerminal }}</td>
-        <td>{{ item.depTime }}</td>
-        <td>{{ item.arrTime }}</td>
+        <td>{{ item.airline }}</td>
+        <td>{{ item.uniq_key }}</td>
+        <td>{{ item.model }}</td>
+        <td>{{ item.dep_airport }}</td>
+        <td>{{ item.arv_airport }}</td>
+        <td>{{ item.dep_time }}</td>
+        <td>{{ item.arv_time }}</td>
         <td>{{ item.price }}</td>
     </tr>
     {% endfor%}
